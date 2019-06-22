@@ -40,7 +40,7 @@ module.exports.validateBody = ({validation}, httpMethod) => (req, res, next) => 
         if (field.required && (fieldValue == null || fieldValue == undefined)) {
             return res.status(errorCode).json({'missingField': field.name});
         }
-        if (field.type && !((typeof fieldValue) == field.type)) {
+        if (field.type && fieldValue && !((typeof fieldValue) == field.type)) {
             return res.status(errorCode).json({'wrongType': field.name});
         }
         if (field.pred && !field.pred(fieldValue)) {

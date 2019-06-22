@@ -1,4 +1,5 @@
 
 module.exports = {
-    Customer: require('./customer')
+    Customer: require('./customer'),
+    Owner: require('./owner')
 };

@@ -4,15 +4,16 @@ const auth = require('../services/auth');
 const ownerSchema = new mongoose.Schema({
     email: {type: String, unique: true},
     phone: {type: String, unique: true},
-    _password: mongoose.SchemaTypes.Mixed
+    _password: mongoose.SchemaTypes.Mixed,
+    username: {type:String, required: true}
 })
 
 ownerSchema.methods.setPassword = async function(password) {
-    this._password = await code.codePassword(password);
+    this._password = await auth.codePassword(password);
 }
 
-customerSchema.methods.verifyPassword = async function (password) {
+ownerSchema.methods.verifyPassword = async function (password) {
     return await auth.verifyPassword(password, this._password);
 }
 
-module.exports = mongoose.model('Customer', ownerSchema);
+module.exports = mongoose.model('Owner', ownerSchema);
