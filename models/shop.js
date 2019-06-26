@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
 const shopSchema = new mongoose.Schema({
-    owner: {type: mongoose.SchemaTypes.ObjectId, unique: true},
+    owner: {type: mongoose.SchemaTypes.ObjectId, required: true},
     title: {type: String, required: true},
+    locationDesc: {type: String, default: ''},
     location: {
         type: {
             type: String,

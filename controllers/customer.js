@@ -6,31 +6,33 @@ function createCustomerToken(customer) {
         id: customer.id,
         email: customer.email,
         username: customer.username
-    })
+    });
 }
 
 const register = {
     validation: {
         fields: [
-            {name: 'username', type: 'string', required: true},
+            {
+                name: 'username', type: 'string', required: true,
+                pred: u=>u.length>=1, predDesc: 'Empty strings not allowed'
+            },
             // TODO: validate email using a regexp
             {name: 'email', type: 'string', required: true},
-            {   
+            {
                 name: 'password', type: 'string', required: true, 
                 pred: password=>password.length>=6, 
                 predDesc: 'Password must have at least 6 characters'
             },
         ]
     },
-    async endpoint(req, res) {
-        const {email, username, password} = req.body;
+    async endpoint({body: {email, username, password}}) {
         const customer = new Customer({email, username})
         await customer.setPassword(password);
         const savedCustomer = apiService.refineMongooseObject(
             await customer.save()
         );
         const token = await createCustomerToken(savedCustomer);
-        res.status(200).json({token});
+        return {token};
     }
 }
 
@@ -41,31 +43,22 @@ const login = {
             {name: 'password', type: 'string', required: true}
         ]
     },
-    async endpoint(req, res) {
-        const {email, password} = req.body;
+    async endpoint({body: {email, password}}) {
         const user = await Customer.findOne({ email });
-        if (!user) {
-            res.status(404).json({message: 'no such user'});
-            return;
-        }
-        if (!(await user.verifyPassword(password))) {
-            res.status(401).json({message: 'wrong password'});
-            return;
-        }
+        apiService.errorIf(!user, apiService.errors.NOT_FOUND, 'no-such-user');
+        const wrongPass = !(await user.verifyPassword(password));
+        apiService.errorIf(
+            wrongPass, apiService.errors.UNAUTHORIZED, 'wrong-password');
         const userObj = apiService.refineMongooseObject(user);
         const token = await createCustomerToken(userObj);
-        res.status(200).json({token});
+        return {token}
     }
 }
 
-const info = {
-    async endpoint(req, res) {
-        res.status(200).json(req.payload);
-    }
-}
+const info = { endpoint: ({payload}) => payload };
 
 module.exports = {
     register,
     login,
     info
-}
+};

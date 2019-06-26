@@ -6,14 +6,18 @@ function createOwnerToken(owner) {
         id: owner.id,
         email: owner.email,
         username: owner.username,
-        phone: owner.phone
-    })
+        phone: owner.phone,
+        owner: true
+    });
 }
 
 const register = {
     validation: {
         fields: [
-            {name: 'username', type: 'string', required: true},
+            {
+                name: 'username', type: 'string', required: true, 
+                pred: u=>u.length>=1, predDesc: 'Empty strings not allowed'
+            },
             // TODO: validate email using a regexp
             {name: 'email', type: 'string'},
             // TODO: validate phone using a regexp
@@ -27,15 +31,15 @@ const register = {
         pred: ({phone, email}) => phone || email,
         predDesc: 'Either phone or email must exist'
     },
-    async endpoint(req, res) {
-        const {email, username, password, phone} = req.body;
+    async endpoint({body}) {
+        const {email, username, password, phone} = body;
         const owner = new Owner({email, username, phone})
         await owner.setPassword(password);
         const saved = apiService.refineMongooseObject(
             await owner.save()
         );
         const token = await createOwnerToken(saved);
-        res.status(200).json({token});
+        return {token};
     }
 }
 
@@ -49,28 +53,24 @@ const login = {
         pred: ({phone, email}) => phone || email,
         predDesc: 'Phone or email must be provided'
     },
-    async endpoint(req, res) {
-        const {email, phone, password} = req.body;
-        const user = email ? (await Owner.findOne({email})) : (await Owner.findOne({phone}));
-        if (!user) {
-            res.status(404).json({message: 'no such user'});
-            return;
+    async endpoint({body}) {
+        const {email, phone, password} = body;
+        let user;
+        if(email) {
+            user = await Owner.findOne({email});
+        } else {
+            user = await Owner.findOne({phone});
         }
-        if (!(await user.verifyPassword(password))) {
-            res.status(401).json({message: 'wrong password'});
-            return;
-        }
+        apiService.errorIf(!user, apiService.errors.NOT_FOUND, 'no-such-user');
+        const wrongPass = !(await user.verifyPassword(password));
+        apiService.errorIf(wrongPass, apiService.errors.UNAUTHORIZED, 'wrong-password');
         const userObj = apiService.refineMongooseObject(user);
         const token = await createOwnerToken(userObj);
-        res.status(200).json({token});
+        return {token};
     }
 }
 
-const info = {
-    async endpoint(req, res) {
-        res.status(200).json(req.payload);
-    }
-}
+const info = { endpoint: ({payload}) => payload }
 
 module.exports = {
     register,
