@@ -69,7 +69,7 @@ module.exports.validateBody = ({validation}) => (req, res, next) => {
                 });
                 return false;
             }
-            // Conver the field array of values to generalize
+            // Convert the field to array of values to generalize
             if (!field.arrayOf) {
                 fieldValues = [fieldValues];
             }
