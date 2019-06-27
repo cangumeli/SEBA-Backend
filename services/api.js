@@ -19,7 +19,7 @@ module.exports.handle = ({endpoint}) => async (req, res) => {
             }
             // TODO: use a non-blocking error logger, check winston
             console.error(err);
-            res.status(500).json({message});
+            res.status(module.exports.errors.INTERNAL).json({message});
         } else {
             res.status(err.responseCode).json({message: err.message});
         }
@@ -52,7 +52,7 @@ module.exports.validateBody = ({validation}) => (req, res, next) => {
     }
 
     const validateBodyRecursive = (validation, body) => {  // returns whether or not to call next
-        const errorCode = 403;
+        const errorCode = module.exports.INVALID_BODY;
         const {fields, pred} = validation;
         for (let i = 0; i < fields.length; i++) {
             const field = fields[i];
