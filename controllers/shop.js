@@ -1,4 +1,5 @@
 const { Shop } = require('../models');
+const {api: apiService} = require('../services');
 
 const createShop = {
     validation: {
@@ -35,6 +36,7 @@ const updateShop = {
     },
     async endpoint({body, payload}) {
         const shop = await Shop.findById(body.id).where({owner: payload.id});
+        apiService.errorIf(!shop, apiService.errors.NOT_FOUND, 'no-such-shop');
         if (body.coordinates) {
             shop.location.coordinates = body.coordinates;
         }
