@@ -18,5 +18,6 @@ const shopSchema = new mongoose.Schema({
 });
 
 shopSchema.index({ location: "2dsphere" });
+shopSchema.index({ owner: 1});
 
 module.exports = mongoose.model('Shop', shopSchema);

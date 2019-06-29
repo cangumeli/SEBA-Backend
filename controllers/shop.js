@@ -6,7 +6,8 @@ const createShop = {
         fields: [
             {
                 name: 'coordinates', type: 'number', required: true, 
-                arrayOf: true, arrayPred: a=>a.length==2,  
+                arrayOf: true, arrayPred: a=>a.length==2, 
+                //pred: el=>el < 100, predDesc: 'Coordinates must be less than 100',
                 arrayPredDesc: '[lon, lat] format is expected',
             },
             {
@@ -36,7 +37,7 @@ const updateShop = {
     },
     async endpoint({body, payload}) {
         const shop = await Shop.findById(body.id).where({owner: payload.id});
-        apiService.errorIf(!shop, apiService.errors.NOT_FOUND, 'no-such-shop');
+        apiService.errorIf(!shop, apiService.errors.NOT_FOUND, 'NoSuchShop');
         if (body.coordinates) {
             shop.location.coordinates = body.coordinates;
         }

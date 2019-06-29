@@ -10,12 +10,12 @@ module.exports.handle = ({endpoint}) => async (req, res) => {
         res.status(200).json(response);
     } catch (err) {
         if (!err.responseCode) {  // Error is not deliberately created
-            let message = 'internal-error';
+            let message = 'InternalError';
             // TODO: This should probably be somewhere else
             // it is necessary because it can happen when saving mail and phone etc.
             // and user should be notified by the client
             if (err.errmsg && err.errmsg.indexOf('duplicate') > -1) {
-                message = 'duplicate-key';
+                message = 'DuplicateKey';
             }
             // TODO: use a non-blocking error logger, check winston
             console.error(err);
@@ -52,8 +52,19 @@ module.exports.validateBody = ({validation}) => (req, res, next) => {
     }
 
     const validateBodyRecursive = (validation, body) => {  // returns whether or not to call next
-        const errorCode = module.exports.INVALID_BODY;
+        const errorCode = module.exports.errors.INVALID_BODY;
         const {fields, pred} = validation;
+        // First check whether there is an unexpected field
+        const fieldNames = new Set(fields.map(f=>f.name));
+        const bodyFieldNames = Object.keys(body);
+        for (let i = 0; i < bodyFieldNames.length; i++) {
+            const name = bodyFieldNames[i];
+            if (!fieldNames.has(name)) {
+                res.status(errorCode).json({'extraField': name});
+                return false;
+            }
+        }
+        // Then, start checking the fields
         for (let i = 0; i < fields.length; i++) {
             const field = fields[i];
             let fieldValues = body[field.name];
