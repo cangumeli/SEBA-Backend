@@ -8,6 +8,7 @@ const itemSchema = new mongoose.Schema({
     tag: {type: String, required: true},
     price: {type: Number, required: true},
     material: {type: String},
+    isSponsored: {type: Boolean},
     size: {type: String},
     detail: {type: String},
     images: [String]

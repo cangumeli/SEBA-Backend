@@ -4,6 +4,7 @@ const shopSchema = new mongoose.Schema({
     owner: {type: mongoose.SchemaTypes.ObjectId, required: true},
     title: {type: String, required: true},
     description: {type: String},
+    subscriptons: {type: mongoose.SchemaTypes.Mixed},
     locationDesc: {type: String, default: ''},
     location: {
         type: {
