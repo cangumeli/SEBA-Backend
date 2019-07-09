@@ -16,18 +16,20 @@ module.exports.addRoute = (router, method, uri, controller) => {
 const authHandler = isOwner => async (req, res, next) => {
     const token = req.headers.authorization
     if (!token) {
-        res.status(401).json({message: 'no-token'});
+        res.status(errors.UNAUTHORIZED).json({message: 'NoToken'});
         return;
     }
     try {
         req.payload = await verifyJwt(token);
         if (isOwner && !req.payload.owner) {
-            res.status(errors.UNAUTHORIZED).json({message: 'invalid-user-type'});
+            res.status(errors.UNAUTHORIZED).json({message: 'InvalidUserType'});
+        } else if ((isOwner == false) && req.payload.owner) {
+            res.status(errors.UNAUTHORIZED).json({message: 'InvalidUserType'});
         } else {
             next();
         }
     } catch (error) {
-        res.status(errors.UNAUTHORIZED).json({message: 'invalid-token'});
+        res.status(errors.UNAUTHORIZED).json({message: 'InvalidToken'});
     }
 }
 
