@@ -103,9 +103,37 @@ const deleteComment = {
     },
 };
 
+const upvote = {
+    validation: {
+        fields: [
+            {name: 'commentId', type: 'string', required: true}
+        ]
+    },
+    async endpoint({body, payload}) {
+        const comment = await Comment.findById(body.commentId).where('userId').ne(payload.id);
+        apiService.errorIf(!comment, apiService.errors.NOT_FOUND, 'NoSuchComment');
+        comment.upvote.addToSet(payload.id);
+        comment.downvote.pull(payload.id);
+        return await comment.save();
+    }
+}
+
+const downvote = {
+    validation: upvote.validation,
+    async endpoint({body, payload}) {
+        const comment = await Comment.findById(body.commentId).where('userId').ne(payload.id);
+        apiService.errorIf(!comment, apiService.errors.NOT_FOUND, 'NoSuchComment');
+        comment.downvote.addToSet(payload.id);
+        comment.upvote.pull(payload.id);
+        return await comment.save();
+    }
+}
+
 module.exports = {
     create,
     update,
     deleteComment,
-    getAll
+    getAll,
+    upvote,
+    downvote
 };

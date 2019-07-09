@@ -13,6 +13,7 @@ addCustomerRoute(router, methods.DELETE, "/info", customer.remove);
 // Inventory
 addRoute(router, methods.GET, "/inventory", item.getInventory);
 addRoute(router, methods.GET, "/item", item.getItem);
+// Comment
 addCustomerRoute(router, methods.POST, "/comment/create", comment.create);
 addCustomerRoute(router, methods.GET, "/comments/getAll", comment.getAll);
 addCustomerRoute(router, methods.PUT, "/comment/update", comment.update);
@@ -22,5 +23,7 @@ addCustomerRoute(
   "/comment/deleteComment",
   comment.deleteComment
 );
+addCustomerRoute(router, methods.PUT, "/comment/upvote", comment.upvote);
+addCustomerRoute(router, methods.PUT, "/comment/downvote", comment.downvote);
 
 module.exports = router;

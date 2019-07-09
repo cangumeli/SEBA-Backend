@@ -23,7 +23,7 @@ const authHandler = isOwner => async (req, res, next) => {
         req.payload = await verifyJwt(token);
         if (isOwner && !req.payload.owner) {
             res.status(errors.UNAUTHORIZED).json({message: 'InvalidUserType'});
-        } else if ((isOwner == false) && req.payload.owner) {
+        } else if ((isOwner === false) && req.payload.owner) {
             res.status(errors.UNAUTHORIZED).json({message: 'InvalidUserType'});
         } else {
             next();

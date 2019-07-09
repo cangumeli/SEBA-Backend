@@ -4,10 +4,10 @@ const commentSchema = new mongoose.Schema({
     text: {type: String, required: true},
     rating: {type: Number, min: 1, max:5, required: true},
     date: {type: Date},
-    upvote: {type: Number, default: 0},
-    downvote: {type: Number, default: 0},
+    upvote: [mongoose.SchemaTypes.ObjectId],
+    downvote: [mongoose.SchemaTypes.ObjectId],
     userId: {type: mongoose.SchemaTypes.ObjectId, required: true}
-})
+});
 
 const Comment = mongoose.model('Comment', commentSchema);
 
