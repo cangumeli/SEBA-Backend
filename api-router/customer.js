@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { customer, item, comment} = require('../controllers');
+const { customer, item, comment, shoppingList} = require('../controllers');
 const { addRoute, addCustomerRoute, methods } = require('./util');
 
 const router = Router();
@@ -18,5 +18,6 @@ addCustomerRoute(router, methods.PUT, '/comment/update', comment.update);
 addCustomerRoute(router, methods.DELETE, '/comment/deleteComment', comment.deleteComment);
 addCustomerRoute(router, methods.PUT, '/comment/upvote', comment.upvote);
 addCustomerRoute(router, methods.PUT, '/comment/downvote', comment.downvote);
-
+// Shopping list
+addCustomerRoute(router, methods.POST, '/shoppingList', shoppingList.addItem);
 module.exports = router;
