@@ -5,7 +5,6 @@ function createCustomerToken(customer) {
     return authService.createJwt({
         id: customer.id,
         email: customer.email,
-        username: customer.username,
         name: customer.name,
         surname: customer.surname,
         addressLine1: customer.addressLine1,
@@ -21,7 +20,11 @@ const register = {
     validation: {
         fields: [
             {
-                name: 'username', type: 'string', required: true,
+                name: 'name', type: 'string', required: true,
+                pred: u=>u.length>=1, predDesc: 'Empty strings not allowed'
+            },
+            {
+                name: 'surname', type: 'string', required: true,
                 pred: u=>u.length>=1, predDesc: 'Empty strings not allowed'
             },
             // TODO: validate email using a regexp
@@ -33,8 +36,8 @@ const register = {
             },
         ]
     },
-    async endpoint({body: {email, username, password}}) {
-        const customer = new Customer({email, username})
+    async endpoint({body: {email, password}}) {
+        const customer = new Customer({email})
         await customer.setPassword(password);
         const savedCustomer = apiService.refineMongooseObject(
             await customer.save()
