@@ -36,8 +36,8 @@ const register = {
             },
         ]
     },
-    async endpoint({body: {email, password}}) {
-        const customer = new Customer({email})
+    async endpoint({body: {email, password, name, surname}}) {
+        const customer = new Customer({email, name, surname})
         await customer.setPassword(password);
         const savedCustomer = apiService.refineMongooseObject(
             await customer.save()
