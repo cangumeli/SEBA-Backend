@@ -132,7 +132,7 @@ const update = {
         }
       }
     });
-    return await user.save();
+    return user.save();
   },
   data: apiService.refinedMongooseSchema(Customer),
 };
@@ -156,7 +156,7 @@ const remove = {
     body.fields.forEach(field => {
       user[field] = undefined;
     });
-    return await user.save();
+    return user.save();
   },
   data: apiService.refinedMongooseSchema(Customer),
 };
