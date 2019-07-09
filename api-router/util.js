@@ -35,11 +35,10 @@ const authHandler = isOwner => async (req, res, next) => {
 };
 
 const fileHandler = (req, _, next) => {
-    
-    if (req.files && req.files.profile && req.files.profile.tempFilePath) {
-        req.tempDir = req.files.profile.tempFilePath;
-    }
-    next();
+  if (req.files && req.files.profile && req.files.profile.tempFilePath) {
+    req.tempDir = req.files.profile.tempFilePath;
+  }
+  next();
 };
 
 module.exports.addAuthRoute = (router, method, uri, controller) => {
@@ -47,9 +46,17 @@ module.exports.addAuthRoute = (router, method, uri, controller) => {
 };
 
 module.exports.addCustomerRoute = async (router, method, uri, controller) => {
-  router[method](uri, [authHandler(false), validateBody(controller), fileHandler], handle(controller));
+  router[method](
+    uri,
+    [authHandler(false), validateBody(controller), fileHandler],
+    handle(controller),
+  );
 };
 
 module.exports.addOwnerRoute = async (router, method, uri, controller) => {
-  router[method](uri, [authHandler(true), validateBody(controller), fileHandler], handle(controller));
+  router[method](
+    uri,
+    [authHandler(true), validateBody(controller), fileHandler],
+    handle(controller),
+  );
 };
