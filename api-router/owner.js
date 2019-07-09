@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { methods, addRoute, addOwnerRoute } = require('./util');
-const { owner, shop, item } = require('../controllers');
+const { owner, shop, item, comment } = require('../controllers');
 
 const router = Router();
 // Account operations
@@ -12,6 +12,7 @@ addOwnerRoute(router, methods.PUT, '/password', owner.changePassword);
 addOwnerRoute(router, methods.POST, '/shop', shop.createShop);
 addOwnerRoute(router, methods.PUT, '/shop', shop.updateShop);
 addOwnerRoute(router, methods.GET, '/shops', shop.getShops);
+addOwnerRoute(router, methods.GET, '/comments/getAll', comment.getAll);
 // Inventory operations
 addOwnerRoute(router, methods.POST, '/inventory', item.addInventory);
 addOwnerRoute(router, methods.GET, '/inventory', item.getInventory);
