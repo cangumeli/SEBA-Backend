@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const itemSchema = new mongoose.Schema({
-    ownerId: {type: mongoose.SchemaTypes.ObjectId, required: true, index: true},
     shopId: {type: mongoose.SchemaTypes.ObjectId, required: true, index: true},
     name: {type: String, required: true},
     category: {type: String, required: true, index: true},

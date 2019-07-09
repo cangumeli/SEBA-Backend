@@ -13,6 +13,9 @@ addOwnerRoute(router, methods.PUT, '/shop', shop.updateShop);
 addOwnerRoute(router, methods.GET, '/shops', shop.getShops);
 // Inventory operations
 addOwnerRoute(router, methods.POST, '/inventory', item.addInventory);
-addRoute(router, methods.GET, '/inventory', item.getInventory);
+addOwnerRoute(router, methods.GET, '/inventory', item.getInventory);
+addOwnerRoute(router, methods.PUT, '/item', item.updateItem);
+addOwnerRoute(router, methods.POST, '/item', item.addItem);
+addOwnerRoute(router, methods.DELETE, '/item', item.deleteItem);
 
 module.exports = router;

@@ -8,5 +8,6 @@ addRoute(router, methods.POST, '/register', customer.register);
 addCustomerRoute(router, methods.GET, '/info', customer.info);
 // Inventory
 addRoute(router, methods.GET, '/inventory', item.getInventory);
+addRoute(router, methods.GET, '/item', item.getItem);
 
 module.exports = router;
