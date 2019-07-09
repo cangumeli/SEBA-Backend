@@ -12,6 +12,11 @@ function createOwnerToken(owner) {
     });
 }
 
+const passwordPred = {
+    pred: password=>password.length>=6, 
+    predDesc: 'Password must have at least 6 characters'
+};
+
 const register = {
     validation: {
         fields: [
@@ -29,8 +34,7 @@ const register = {
             {name: 'phone', type: 'string'},
             {   
                 name: 'password', type: 'string', required: true, 
-                pred: password=>password.length>=6, 
-                predDesc: 'Password must have at least 6 characters'
+                ...passwordPred
             },
         ],
         pred: ({phone, email}) => phone || email,
@@ -69,9 +73,9 @@ const login = {
         } else {
             user = await Owner.findOne({phone});
         }
-        apiService.errorIf(!user, apiService.errors.NOT_FOUND, 'no-such-user');
+        apiService.errorIf(!user, apiService.errors.NOT_FOUND, 'NoSuchUser');
         const wrongPass = !(await user.verifyPassword(password));
-        apiService.errorIf(wrongPass, apiService.errors.UNAUTHORIZED, 'wrong-password');
+        apiService.errorIf(wrongPass, apiService.errors.UNAUTHORIZED, 'WrongPassword');
         const userObj = apiService.refineMongooseObject(user);
         const token = await createOwnerToken(userObj);
         return {token};
@@ -81,10 +85,38 @@ const login = {
     }
 }
 
-const info = { endpoint: ({payload}) => payload, data: apiService.refinedMongooseSchema(Owner) }
+const changePassword = {
+    validation: {
+        fields: [
+            {name: 'oldPassword', type: 'string', required: true},
+            {name: 'newPassword', type: 'string', required: true, ...passwordPred},
+        ]
+    },
+    async endpoint({body, payload}) {
+        const user = await Owner.findById(payload.id);
+        apiService.errorIf(!user, apiService.errors.NOT_FOUND, 'NoSuchOwner');
+        apiService.errorIf(
+            !(await user.verifyPassword(body.oldPassword)), 
+            apiService.errors.UNAUTHORIZED,
+            'WrongPassword'
+        );
+        await user.setPassword(body.newPassword);
+        await user.save();
+        return {success: true};
+    },
+    data: {
+        success: 'boolean'
+    }
+}
+
+const info = { 
+    endpoint: ({payload}) => payload, 
+    data: apiService.refinedMongooseSchema(Owner) 
+};
 
 module.exports = {
     register,
     login,
-    info
+    info,
+    changePassword
 }

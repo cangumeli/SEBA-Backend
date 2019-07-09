@@ -7,6 +7,7 @@ const router = Router();
 addRoute(router, methods.POST, '/login', owner.login);
 addRoute(router, methods.POST, '/register', owner.register);
 addOwnerRoute(router, methods.GET, '/info', owner.info);
+addOwnerRoute(router, methods.PUT, '/password', owner.changePassword);
 // Shop operations
 addOwnerRoute(router, methods.POST, '/shop', shop.createShop);
 addOwnerRoute(router, methods.PUT, '/shop', shop.updateShop);
