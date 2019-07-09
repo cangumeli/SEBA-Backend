@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 const { Router } = require('express');
 const { customer, item, comment, shoppingList} = require('../controllers');
 const { addRoute, addCustomerRoute, methods } = require('./util');
-=======
-const { Router } = require("express");
-const { customer, item, comment } = require("../controllers");
-const { addRoute, addCustomerRoute, methods } = require("./util");
->>>>>>> 0e305d7c7927aa37b8b838933daed4a613b041a5
 
 const router = Router();
 // Account
