@@ -12,7 +12,8 @@ const customerSchema = new mongoose.Schema({
     zipCode: {type: Number},
     city: {type:String},
     country: {type:String},
-    phone: {type:String}
+    phone: {type:String},
+    image: {type: String}
 });
 
 customerSchema.methods.setPassword = async function(password) {

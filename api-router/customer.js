@@ -10,6 +10,7 @@ addCustomerRoute(router, methods.GET, "/info", customer.info);
 addCustomerRoute(router, methods.PUT, "/password", customer.changePassword);
 addCustomerRoute(router, methods.PUT, "/info", customer.update);
 addCustomerRoute(router, methods.DELETE, "/info", customer.remove);
+addCustomerRoute(router, methods.POST, '/image', customer.uploadPic);
 // Inventory
 addRoute(router, methods.GET, "/inventory", item.getInventory);
 addRoute(router, methods.GET, "/item", item.getItem);
