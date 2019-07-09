@@ -3,4 +3,6 @@ module.exports = {
     Owner: require('./owner'),
     Shop: require('./shop'),
     Item: require('./item'),
+    ...require('./comment'),
+    ShoppingList: require('./shopping-list')
 };

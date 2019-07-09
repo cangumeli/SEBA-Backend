@@ -23,7 +23,8 @@ const createShop = {
             location: { type: "Point", coordinates } }
         );
         return shop.save();
-    }
+    },
+    data: apiService.refinedMongooseSchema(Shop)
 };
 
 const updateShop = {
@@ -48,11 +49,13 @@ const updateShop = {
             shop.locationDesc = body.locationDesc;
         }
         return await shop.save();
-    }
+    },
+    data: apiService.refinedMongooseSchema(Shop)
 };
 
 const getShops = {
-    endpoint: ({payload: { id }}) => Shop.find({owner: id}).exec()
+    endpoint: ({payload: { id }}) => Shop.find({owner: id}).exec(),
+    data: {array: true, ...apiService.refinedMongooseSchema(Shop)}
 };
 
 module.exports = {

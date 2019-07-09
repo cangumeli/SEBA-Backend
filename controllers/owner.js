@@ -45,6 +45,9 @@ const register = {
         );
         const token = await createOwnerToken(saved);
         return {token};
+    },
+    data: {
+        token: 'string'
     }
 }
 
@@ -72,10 +75,13 @@ const login = {
         const userObj = apiService.refineMongooseObject(user);
         const token = await createOwnerToken(userObj);
         return {token};
+    },
+    data: {
+       token: 'string' 
     }
 }
 
-const info = { endpoint: ({payload}) => payload }
+const info = { endpoint: ({payload}) => payload, data: apiService.refinedMongooseSchema(Owner) }
 
 module.exports = {
     register,

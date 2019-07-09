@@ -1,7 +1,9 @@
+const { SchemaTypes: { ObjectId } } = require('mongoose');
 /**
  * Use handle with every controller to properly check errors
  */
-module.exports.handle = ({endpoint}) => async (req, res) => {
+module.exports.handle = ({endpoint, validation, data}) => async (req, res) => {
+    // Cases where validation is not necessary
     try {
         if ((!req.body || !Object.keys(req.body).length)) {
             req.body = req.query;  // 'GET' requests don't have a body
@@ -40,10 +42,9 @@ module.exports.handle = ({endpoint}) => async (req, res) => {
  * This procedure shouldn't be used for validation where security is an issue (like password check etc)
  * or async checks that require database/auth services
  */
-module.exports.validateBody = ({validation}) => (req, res, next) => {
-    // Cases where validation is not necessary
+module.exports.validateBody = ({validation, data}) => (req, res, next) => {
     if (req.query.help) { // return spec 
-        res.status(200).json({inputSpec: validation});
+        res.status(200).json({inputSpec: validation, outputSpec: data});
         return;
     }
     if (!validation) {
@@ -145,6 +146,26 @@ module.exports.refineMongooseObject = function refineMongooseObject(mobj) {
         }
     });
     return refinedObj;
+}
+
+module.exports.refinedMongooseSchema = function refinedMongooseSchema(Model) {
+    const obj = Model.schema.obj;
+    const refinedSchema = {}
+    Object.keys(obj).forEach(key => {
+        if (!key.startsWith('_')) {
+            try {
+                if (obj[key].type == ObjectId) {
+                    refinedSchema[key] = 'string' 
+                } else {
+                    refinedSchema[key] = typeof obj[key].type();
+                }
+            } catch(err) {
+                refinedSchema[key] = 'object';
+            }
+        }
+    });
+    refinedSchema.id = 'string';
+    return refinedSchema;
 }
 
 module.exports.errors = {

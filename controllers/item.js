@@ -29,6 +29,10 @@ const addInventory = {
         return await Item.insertMany(body.items.map(item => ({
             shopId: shop._id, ownerId: payload.id, ...item
         })));
+    },
+    data: {
+        array: true,
+        ...apiService.refinedMongooseSchema(Item)
     }
 };
 
@@ -37,7 +41,11 @@ const getInventory = {
     validation: {
         fields: [{name: 'shopId', type: 'string', required: true}]
     },
-    endpoint: ({body: { shopId }}) => Item.find({shopId}).exec()
+    endpoint: ({body: { shopId }}) => Item.find({shopId}).exec(),
+    data: {
+        array: true,
+        ...apiService.refinedMongooseSchema(Item)
+    }
 }
 
 module.exports = {

@@ -41,7 +41,8 @@ const register = {
         );
         const token = await createCustomerToken(savedCustomer);
         return {token};
-    }
+    },
+    data: {token: 'string'}
 }
 
 const login = {
@@ -60,10 +61,13 @@ const login = {
         const userObj = apiService.refineMongooseObject(user);
         const token = await createCustomerToken(userObj);
         return {token}
+    },
+    data: {
+        token: 'string'
     }
 }
 
-const info = { endpoint: ({payload}) => payload };
+const info = { endpoint: ({payload}) => payload, data: apiService.refinedMongooseSchema(Customer) };
 
 module.exports = {
     register,
