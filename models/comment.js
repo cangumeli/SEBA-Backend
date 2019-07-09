@@ -6,15 +6,12 @@ const commentSchema = new mongoose.Schema({
     date: {type: Date},
     upvote: {type: Number, default: 0},
     downvote: {type: Number, default: 0},
-    date: {type: Date},
     userId: {type: mongoose.SchemaTypes.ObjectId, required: true}
 })
 
-commentSchema.pre('save', doc=> {
-    doc.date = new Date();
-})
-
 const Comment = mongoose.model('Comment', commentSchema);
+
+module.exports.Comment = Comment;
 
 module.exports.ShopComment = Comment.discriminator(
     'ShopComment',
