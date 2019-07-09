@@ -112,6 +112,7 @@ const changePassword = {
 const update = {
   validation: {
     fields: [
+      { name: "email", type: "string" },
       { name: "name", type: "string" },
       { name: "surname", type: "string" },
       { name: "addressLine1", type: "string" },
