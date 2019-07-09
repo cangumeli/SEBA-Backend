@@ -5,7 +5,8 @@ function createOwnerToken(owner) {
     return authService.createJwt({
         id: owner.id,
         email: owner.email,
-        username: owner.username,
+        name: owner.name,
+        surname: owner.surname,
         phone: owner.phone,
         owner: true
     });
@@ -15,7 +16,11 @@ const register = {
     validation: {
         fields: [
             {
-                name: 'username', type: 'string', required: true, 
+                name: 'name', type: 'string', required: true, 
+                pred: u=>u.length>=1, predDesc: 'Empty strings not allowed'
+            },
+            {
+                name: 'surname', type: 'string', required: true, 
                 pred: u=>u.length>=1, predDesc: 'Empty strings not allowed'
             },
             // TODO: validate email using a regexp
@@ -32,8 +37,8 @@ const register = {
         predDesc: 'Either phone or email must exist'
     },
     async endpoint({body}) {
-        const {email, username, password, phone} = body;
-        const owner = new Owner({email, username, phone})
+        const {email, name, surname, password, phone} = body;
+        const owner = new Owner({email, name, surname, phone})
         await owner.setPassword(password);
         const saved = apiService.refineMongooseObject(
             await owner.save()

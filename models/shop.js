@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const shopSchema = new mongoose.Schema({
     owner: {type: mongoose.SchemaTypes.ObjectId, required: true},
     title: {type: String, required: true},
+    description: {type: String},
     locationDesc: {type: String, default: ''},
     location: {
         type: {

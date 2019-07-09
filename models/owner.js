@@ -7,7 +7,8 @@ const ownerSchema = new mongoose.Schema({
     email: {type: String, unique: true, sparse: true},
     phone: {type: String, unique: true, sparse: true},
     _password: mongoose.SchemaTypes.Mixed,
-    username: {type:String, required: true}
+    name: {type:String, required: true},
+    surname: {type:String, required: true}
 });
 
 ownerSchema.methods.setPassword = async function(password) {

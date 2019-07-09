@@ -5,7 +5,15 @@ function createCustomerToken(customer) {
     return authService.createJwt({
         id: customer.id,
         email: customer.email,
-        username: customer.username
+        username: customer.username,
+        name: customer.name,
+        surname: customer.surname,
+        addressLine1: customer.addressLine1,
+        addressLine2: customer.addressLine2,
+        zipCode: customer.zipCode,
+        city: customer.city,
+        country: customer.country,
+        phone: customer.phone
     });
 }
 
