@@ -23,15 +23,11 @@ addCustomerRoute(router, methods.DELETE, "/image", customer.removePicture);
 addRoute(router, methods.GET, "/inventory", item.getInventory);
 addRoute(router, methods.GET, "/item", item.getItem);
 // Comment
-addCustomerRoute(router, methods.POST, "/comment/create", comment.create);
-addCustomerRoute(router, methods.GET, "/comments/getAll", comment.getAll);
-addCustomerRoute(router, methods.PUT, "/comment/update", comment.update);
-addCustomerRoute(
-  router,
-  methods.DELETE,
-  "/comment/deleteComment",
-  comment.deleteComment
-);
+addCustomerRoute(router, methods.GET, "/comment", comment.get);
+addCustomerRoute(router, methods.POST, "/comment", comment.create);
+addCustomerRoute(router, methods.PUT, "/comment", comment.update);
+addCustomerRoute(router, methods.GET, "/comments", comment.getAll);
+addCustomerRoute(router, methods.DELETE, "/comment", comment.deleteComment);
 addCustomerRoute(router, methods.PUT, "/comment/upvote", comment.upvote);
 addCustomerRoute(router, methods.PUT, "/comment/downvote", comment.downvote);
 // Shopping list

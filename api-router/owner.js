@@ -15,9 +15,19 @@ addOwnerRoute(router, methods.POST, "/image", owner.uploadPic);
 addStaticRoute(router, "/image", fileService.dirs.OWNER_PROFILE_PICTURES);
 addOwnerRoute(router, methods.DELETE, "/image", owner.removePicture);
 // Shop operations
+addOwnerRoute(router, methods.GET, "/shop", shop.get);
 addOwnerRoute(router, methods.POST, "/shop", shop.createShop);
 addOwnerRoute(router, methods.PUT, "/shop", shop.updateShop);
+addOwnerRoute(router, methods.DELETE, "/shop", shop.deleteShop);
 addOwnerRoute(router, methods.GET, "/shops", shop.getShops);
+addOwnerRoute(router, methods.POST, "/shop/subscribe", shop.subscribe);
+addOwnerRoute(router, methods.DELETE, "/shop/unsubscribe", shop.unsubscribe);
+addOwnerRoute(
+  router,
+  methods.GET,
+  "/shop/subscriptions",
+  shop.getSubscriptions
+);
 addOwnerRoute(router, methods.GET, "/comments/getAll", comment.getAll);
 // Inventory operations
 addOwnerRoute(router, methods.POST, "/inventory", item.addInventory);
