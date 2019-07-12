@@ -1,6 +1,9 @@
 const { Shop, Item } = require('../models');
 const { api: apiService, file: fileService } = require('../services');
+<<<<<<< HEAD
 const { sep } = require('path');
+=======
+>>>>>>> 58ce9a302d1708f835c5fe1be222c69222635f84
 
 async function checkOwnership(shopId, userId) {
   const shop = await Shop.findById(shopId)
@@ -24,7 +27,11 @@ const addItem = {
   },
   async endpoint({ body, payload }) {
     await checkOwnership(body.shopId, payload.id);
+<<<<<<< HEAD
     return await Item.create({ ...body, lastImageIndex: 0 });
+=======
+    return await Item.create(body);
+>>>>>>> 58ce9a302d1708f835c5fe1be222c69222635f84
   },
 };
 
@@ -74,6 +81,7 @@ const updateItem = {
 
 const addInventory = {
   validation: {
+<<<<<<< HEAD
     fields: [
       { name: 'shopId', type: 'string', required: true },
       {
@@ -113,6 +121,30 @@ const addInventory = {
     array: true,
     ...apiService.refinedMongooseSchema(Item),
   },
+=======
+    fields: [{ name: 'shopId', type: 'string', required: true }],
+  },
+  async endpoint({ body: { shopId }, payload: { id }, tempDir, fileFormat }) {
+    apiService.errorIf(!tempDir, apiService.errors.INVALID_BODY, 'NoCsvFile');
+    const shop = await Shop.findById(shopId).where({ owner: id });
+    apiService.errorIf(!shop, apiService.errors.NOT_FOUND, 'NoSuchShop');
+
+    const items = await fileService.readCSV(tempDir);
+
+    return await Item.insertMany(
+      items.map(item => ({
+        shopId: shopId,
+        name: item['name'],
+        price: item['price'],
+        category: item['category'],
+        tag: item['tag'],
+        detail: item['detail'],
+        material: item['material'],
+      })),
+    );
+  },
+  data: { path: 'string' },
+>>>>>>> 58ce9a302d1708f835c5fe1be222c69222635f84
 };
 
 const getInventory = {
