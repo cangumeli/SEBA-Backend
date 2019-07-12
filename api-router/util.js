@@ -1,3 +1,6 @@
+const express = require("express");
+const { sep } = require("path");
+const { PATH } = require("../config");
 const {
   api: { validateBody, handle, errors },
   auth: { verifyJwt }
@@ -36,7 +39,9 @@ const authHandler = isOwner => async (req, res, next) => {
 
 const fileHandler = (req, _, next) => {
   if (req.files && req.files.picture && req.files.picture.tempFilePath) {
+    format = req.files.picture.mimetype.split("/")[1];
     req.tempDir = req.files.picture.tempFilePath;
+    req.fileFormat = format;
   }
   next();
 };
@@ -62,5 +67,11 @@ module.exports.addOwnerRoute = async (router, method, uri, controller) => {
     uri,
     [authHandler(true), validateBody(controller), fileHandler],
     handle(controller)
+  );
+};
+
+module.exports.addStaticRoute = (router, uri, dir) => {
+  router.get(uri, (req, res) =>
+    res.sendfile(PATH + sep + dir + sep + req.query.destination)
   );
 };

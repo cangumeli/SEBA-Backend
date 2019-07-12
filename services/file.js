@@ -2,13 +2,13 @@ const fs = require("fs");
 const path = require("path");
 
 const dirs = {
-  CUSTOMER_PROFILE_PICTURES: "CustomerProfilePictures",
-  OWNER_PROFILE_PICTURES: "OwnerProfilePictures",
-  ITEM_PICTURES: "ItemPictures"
+  CUSTOMER_PROFILE_PICTURES: "./CustomerProfilePictures",
+  OWNER_PROFILE_PICTURES: "./OwnerProfilePictures",
+  ITEM_PICTURES: "./ItemPictures"
 };
 
 /* dirFor is an element from module.exports.dirs*/
-function getDir(dirFor, dest) {
+function getDir(dirFor, dest, format) {
   return dirFor + path.sep + dest;
 }
 

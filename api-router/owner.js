@@ -1,6 +1,7 @@
 const { Router } = require("express");
-const { methods, addRoute, addOwnerRoute } = require("./util");
+const { methods, addRoute, addOwnerRoute, addStaticRoute } = require("./util");
 const { owner, shop, item, comment } = require("../controllers");
+const { file: fileService } = require("../services");
 
 const router = Router();
 // Account operations
@@ -11,6 +12,7 @@ addOwnerRoute(router, methods.PUT, "/password", owner.changePassword);
 addOwnerRoute(router, methods.PUT, "/info", owner.update);
 addOwnerRoute(router, methods.DELETE, "/info", owner.remove);
 addOwnerRoute(router, methods.POST, "/image", owner.uploadPic);
+addStaticRoute(router, "/image", fileService.dirs.OWNER_PROFILE_PICTURES);
 // Shop operations
 addOwnerRoute(router, methods.POST, "/shop", shop.createShop);
 addOwnerRoute(router, methods.PUT, "/shop", shop.updateShop);

@@ -182,7 +182,7 @@ const remove = {
 };
 
 const uploadPic = {
-  async endpoint({ payload: { id }, tempDir }) {
+  async endpoint({ payload: { id }, tempDir, fileFormat }) {
     apiService.errorIf(
       !tempDir,
       apiService.errors.INVALID_BODY,
@@ -192,7 +192,8 @@ const uploadPic = {
     apiService.errorIf(!user, apiService.errors.NOT_FOUND, "NoSuchUser");
     const targetDir = fileService.getDir(
       fileService.dirs.OWNER_PROFILE_PICTURES,
-      id
+      id,
+      fileFormat
     );
     const { path } = await fileService.copyFile(tempDir, targetDir);
     const toRemoves = [tempDir];
@@ -200,7 +201,7 @@ const uploadPic = {
     await user.save();
     // Do not wait for file removal, it can be done after sending the response
     fileService.removeFilesAsync(toRemoves);
-    return { path };
+    return { path: "id" + "." + fileFormat };
   },
   data: { path: "string" }
 };
