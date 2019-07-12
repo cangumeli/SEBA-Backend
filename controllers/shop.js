@@ -1,5 +1,6 @@
 const { Shop, Item, Subscription } = require('../models');
 const { api: apiService, file: fileService } = require('../services');
+const { sep } = require('path');
 
 const createShop = {
   validation: {
@@ -181,7 +182,7 @@ const uploadPicture = {
     const targetDir = fileService.getDir(fileService.dirs.SHOP_PICTURES, shopId, fileFormat);
     const { path } = await fileService.copyFile(tempDir, targetDir);
     const toRemoves = [tempDir];
-    shop.image = path;
+    shop.image = shopId + '.' + fileFormat;
     await shop.save();
     // Do not wait for file removal, it can be done after sending the response
     fileService.removeFilesAsync(toRemoves);
@@ -200,7 +201,7 @@ const removePicture = {
     const image = shop.image;
     shop.image = undefined;
     await shop.save();
-    await fileService.removeFile(image);
+    await fileService.removeFile(fileService.dirs.SHOP_PICTURES + sep + image);
     return { success: true };
   },
   data: { success: 'bool' },
