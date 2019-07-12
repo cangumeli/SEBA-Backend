@@ -50,6 +50,18 @@ const create = {
   },
 };
 
+const get = {
+  validation: {
+    fields: [{ name: 'id', type: 'string', required: true }],
+  },
+  async endpoint({ body, payload }) {
+    const comment = await Comment.findById(body.id).where({ userId: payload.id });
+    apiService.errorIf(!comment, apiService.errors.NOT_FOUND, 'NoSuchComment');
+
+    return comment;
+  },
+};
+
 const getAll = {
   validation: {
     fields: [
@@ -84,7 +96,6 @@ const update = {
     fields: [
       ...create.validation.fields.map(field => ({ ...field, required: false })),
       { name: 'id', type: 'string', required: true },
-      { name: 'userId', type: 'string', required: true },
     ],
     pred: body =>
       Object.keys(body).some(k => k !== 'id' && body[k] !== undefined && body[k] != null),
@@ -102,13 +113,7 @@ const update = {
 
 const deleteComment = {
   validation: {
-    fields: [
-      { name: 'id', type: 'string', required: true },
-      { name: 'userId', type: 'string', required: true },
-    ],
-    pred: body =>
-      Object.keys(body).some(k => k !== 'id' && body[k] !== undefined && body[k] != null),
-    predDesc: 'One of the update fields must be defined and nonnull',
+    fields: [{ name: 'id', type: 'string', required: true }],
   },
   async endpoint({ body, payload }) {
     const comment = await Comment.findOneAndRemove({
@@ -153,6 +158,7 @@ module.exports = {
   create,
   update,
   deleteComment,
+  get,
   getAll,
   upvote,
   downvote,
