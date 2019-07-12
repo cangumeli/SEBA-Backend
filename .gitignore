@@ -4,3 +4,7 @@ package-lock.json
 tmp
 CustomerProfilePictures
 .DS_Store
+/ItemPictures
+/ShopPictures
+/OwnerProfilePictures
+/CustomerProfilePictures

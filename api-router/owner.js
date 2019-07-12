@@ -34,5 +34,8 @@ addOwnerRoute(router, methods.GET, '/inventory', item.getInventory);
 addOwnerRoute(router, methods.PUT, '/item', item.updateItem);
 addOwnerRoute(router, methods.POST, '/item', item.addItem);
 addOwnerRoute(router, methods.DELETE, '/item', item.deleteItem);
+addOwnerRoute(router, methods.POST, '/item/image', item.uploadPicture);
+addStaticRoute(router, '/item/image', fileService.dirs.ITEM_PICTURES);
+addOwnerRoute(router, methods.DELETE, '/item/image', item.removePicture);
 
 module.exports = router;
