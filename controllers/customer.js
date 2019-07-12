@@ -206,6 +206,25 @@ const uploadPic = {
   data: { path: "string" }
 };
 
+const removePicture = {
+  async endpoint({ payload: { id } }) {
+    const user = await Customer.findById(id);
+    apiService.errorIf(
+      !user.image,
+      apiService.errors.NOT_FOUND,
+      "NoProfilePicture"
+    );
+    const image = user.image;
+    user.image = undefined;
+    await user.save();
+    await fileService.removeFile(image);
+    return { success: true };
+  },
+  data: {
+    success: "bool"
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -213,5 +232,6 @@ module.exports = {
   changePassword,
   update,
   remove,
-  uploadPic
+  uploadPic,
+  removePicture
 };

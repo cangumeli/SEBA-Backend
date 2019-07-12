@@ -72,6 +72,6 @@ module.exports.addOwnerRoute = async (router, method, uri, controller) => {
 
 module.exports.addStaticRoute = (router, uri, dir) => {
   router.get(uri, (req, res) =>
-    res.sendfile(PATH + sep + dir + sep + req.query.destination)
+    res.sendFile(PATH + sep + dir + sep + req.query.destination)
   );
 };

@@ -9,7 +9,7 @@ const dirs = {
 
 /* dirFor is an element from module.exports.dirs*/
 function getDir(dirFor, dest, format) {
-  return dirFor + path.sep + dest;
+  return dirFor + path.sep + dest + "." + format;
 }
 
 function init() {
@@ -39,9 +39,17 @@ function removeFilesAsync(dirs) {
       dir &&
       fs.unlink(dir, err => {
         // TODO: use a non-blocking logger
-        console.error(err);
+        err && console.error(err);
       })
   );
+}
+
+async function removeFile(dir) {
+  return new Promise((resolve, reject) => {
+    fs.unlink(dir, err => {
+      err ? reject(err) : resolve(true);
+    });
+  });
 }
 
 module.exports = {
@@ -49,5 +57,6 @@ module.exports = {
   dirs,
   copyFile,
   removeFilesAsync,
-  getDir
+  getDir,
+  removeFile
 };

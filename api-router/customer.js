@@ -17,7 +17,8 @@ addCustomerRoute(router, methods.PUT, "/password", customer.changePassword);
 addCustomerRoute(router, methods.PUT, "/info", customer.update);
 addCustomerRoute(router, methods.DELETE, "/info", customer.remove);
 addCustomerRoute(router, methods.POST, "/image", customer.uploadPic);
-addStaticRoute(router, "/image/", fileService.dirs.CUSTOMER_PROFILE_PICTURES);
+addStaticRoute(router, "/image", fileService.dirs.CUSTOMER_PROFILE_PICTURES);
+addCustomerRoute(router, methods.DELETE, "/image", customer.removePicture);
 // Inventory
 addRoute(router, methods.GET, "/inventory", item.getInventory);
 addRoute(router, methods.GET, "/item", item.getItem);

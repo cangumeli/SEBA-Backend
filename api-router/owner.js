@@ -13,6 +13,7 @@ addOwnerRoute(router, methods.PUT, "/info", owner.update);
 addOwnerRoute(router, methods.DELETE, "/info", owner.remove);
 addOwnerRoute(router, methods.POST, "/image", owner.uploadPic);
 addStaticRoute(router, "/image", fileService.dirs.OWNER_PROFILE_PICTURES);
+addOwnerRoute(router, methods.DELETE, "/image", owner.removePicture);
 // Shop operations
 addOwnerRoute(router, methods.POST, "/shop", shop.createShop);
 addOwnerRoute(router, methods.PUT, "/shop", shop.updateShop);
