@@ -4,7 +4,8 @@ const path = require("path");
 const dirs = {
   CUSTOMER_PROFILE_PICTURES: "./CustomerProfilePictures",
   OWNER_PROFILE_PICTURES: "./OwnerProfilePictures",
-  ITEM_PICTURES: "./ItemPictures"
+  ITEM_PICTURES: "./ItemPictures",
+  SHOP_PICTURES: "./ShopPictures"
 };
 
 /* dirFor is an element from module.exports.dirs*/

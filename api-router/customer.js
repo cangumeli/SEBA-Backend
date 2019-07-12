@@ -32,4 +32,6 @@ addCustomerRoute(router, methods.PUT, "/comment/upvote", comment.upvote);
 addCustomerRoute(router, methods.PUT, "/comment/downvote", comment.downvote);
 // Shopping list
 addCustomerRoute(router, methods.POST, "/shoppingList", shoppingList.addItem);
+// Shop
+addStaticRoute(router, "/shop/image", fileService.dirs.SHOP_PICTURES);
 module.exports = router;

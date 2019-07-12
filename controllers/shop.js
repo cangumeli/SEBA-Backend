@@ -1,5 +1,5 @@
 const { Shop, Item, Subscription } = require('../models');
-const { api: apiService } = require('../services');
+const { api: apiService, file: fileService } = require('../services');
 
 const createShop = {
   validation: {
@@ -21,20 +21,15 @@ const createShop = {
         arrayPred: coordinates => coordinates.length === 2,
         arrayPredDesc: '[lon, lat] format is expected',
       },
-      {
-        name: 'subscriptions',
-        arrayOf: true,
-      },
     ],
   },
-  endpoint({ body: { title, locationDesc, description, coordinates, subscriptions }, payload }) {
+  endpoint({ body: { title, locationDesc, description, coordinates }, payload }) {
     const shop = new Shop({
       owner: payload.id,
       title,
       locationDesc,
       description,
       location: { type: 'Point', coordinates },
-      subscriptions,
     });
     return shop.save();
   },
@@ -44,7 +39,10 @@ const createShop = {
 const updateShop = {
   validation: {
     fields: [
-      ...createShop.validation.fields.map(field => ({ ...field, required: false })),
+      ...createShop.validation.fields.map(field => ({
+        ...field,
+        required: false,
+      })),
       { name: 'id', type: 'string', required: true },
     ],
     pred: body =>
@@ -144,7 +142,10 @@ const unsubscribe = {
     ],
   },
   async endpoint({ body: { id, shopId } }) {
-    const subscription = await Subscription.findOneAndRemove({ _id: id, shopId });
+    const subscription = await Subscription.findOneAndRemove({
+      _id: id,
+      shopId,
+    });
     apiService.errorIf(!subscription, apiService.errors.NOT_FOUND, 'NoSuchSubscription');
 
     if (subscription.type === 'sponsoredItem') {
@@ -169,6 +170,42 @@ const getSubscriptions = {
   },
 };
 
+const uploadPicture = {
+  validation: {
+    fields: [{ name: 'shopId', type: 'string', required: true }],
+  },
+  async endpoint({ body: { shopId }, payload: { id: ownerId }, tempDir, fileFormat }) {
+    apiService.errorIf(!tempDir, apiService.errors.INVALID_BODY, 'NoProfileImage');
+    const shop = await Shop.findById(shopId).where({ owner: ownerId });
+    apiService.errorIf(!shop, apiService.errors.NOT_FOUND, 'NoSuchShop');
+    const targetDir = fileService.getDir(fileService.dirs.SHOP_PICTURES, shopId, fileFormat);
+    const { path } = await fileService.copyFile(tempDir, targetDir);
+    const toRemoves = [tempDir];
+    shop.image = path;
+    await shop.save();
+    // Do not wait for file removal, it can be done after sending the response
+    fileService.removeFilesAsync(toRemoves);
+    return { path: shopId + '.' + fileFormat };
+  },
+};
+
+const removePicture = {
+  validation: {
+    fields: [{ name: 'shopId', type: 'string', required: true }],
+  },
+  async endpoint({ body: { shopId }, payload: { id: ownerId } }) {
+    const shop = await Shop.findById(shopId).where({ owner: ownerId });
+    apiService.errorIf(!shop, apiService.errors.NOT_FOUND, 'NoSuchShop');
+    apiService.errorIf(!shop.image, apiService.errors.NOT_FOUND, 'NoProfileImage');
+    const image = shop.image;
+    shop.image = undefined;
+    await shop.save();
+    await fileService.removeFile(image);
+    return { success: true };
+  },
+  data: { success: 'bool' },
+};
+
 module.exports = {
   createShop,
   updateShop,
@@ -178,4 +215,6 @@ module.exports = {
   subscribe,
   unsubscribe,
   getSubscriptions,
+  uploadPicture,
+  removePicture,
 };
