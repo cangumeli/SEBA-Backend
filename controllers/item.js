@@ -1,9 +1,6 @@
 const { Shop, Item } = require('../models');
 const { api: apiService, file: fileService } = require('../services');
-<<<<<<< HEAD
 const { sep } = require('path');
-=======
->>>>>>> 58ce9a302d1708f835c5fe1be222c69222635f84
 
 async function checkOwnership(shopId, userId) {
   const shop = await Shop.findById(shopId)
@@ -27,11 +24,7 @@ const addItem = {
   },
   async endpoint({ body, payload }) {
     await checkOwnership(body.shopId, payload.id);
-<<<<<<< HEAD
     return await Item.create({ ...body, lastImageIndex: 0 });
-=======
-    return await Item.create(body);
->>>>>>> 58ce9a302d1708f835c5fe1be222c69222635f84
   },
 };
 
@@ -81,47 +74,6 @@ const updateItem = {
 
 const addInventory = {
   validation: {
-<<<<<<< HEAD
-    fields: [
-      { name: 'shopId', type: 'string', required: true },
-      {
-        name: 'items',
-        required: true,
-        arrayOf: true,
-        arrayPred: a => a.length >= 1,
-        arrayPredDesc: 'Must add at least one item',
-        validation: {
-          fields: [
-            { name: 'name', type: 'string', required: true },
-            { name: 'price', type: 'number', required: true },
-            { name: 'category', type: 'string', required: true },
-            { name: 'tag', type: 'string', required: true },
-            { name: 'detail', type: 'string' },
-            { name: 'isSponsored', type: 'bool' },
-            { name: 'material', type: 'string' },
-          ],
-        },
-      },
-    ],
-  },
-  async endpoint({ body, payload }) {
-    apiService.errorIf(
-      !(await isOwner(body.shopId, payload.id)),
-      apiService.errors.UNAUTHORIZED,
-      'NotOwner',
-    );
-    return await Item.insertMany(
-      body.items.map(item => ({
-        shopId: shop._id,
-        ...item,
-      })),
-    );
-  },
-  data: {
-    array: true,
-    ...apiService.refinedMongooseSchema(Item),
-  },
-=======
     fields: [{ name: 'shopId', type: 'string', required: true }],
   },
   async endpoint({ body: { shopId }, payload: { id }, tempDir, fileFormat }) {
@@ -144,7 +96,6 @@ const addInventory = {
     );
   },
   data: { path: 'string' },
->>>>>>> 58ce9a302d1708f835c5fe1be222c69222635f84
 };
 
 const getInventory = {
