@@ -49,7 +49,7 @@ const fileHandler = (req, _, next) => {
 module.exports.addAuthRoute = (router, method, uri, controller) => {
   router[method](
     uri,
-    [authHandler(), validateBody(controller)],
+    [authHandler(), validateBody(controller), fileHandler],
     handle(controller)
   );
 };
