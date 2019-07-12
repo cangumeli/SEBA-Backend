@@ -1,5 +1,9 @@
-const { auth: authService, api: apiService } = require('../services');
-const { Owner } = require('../models');
+const {
+  auth: authService,
+  api: apiService,
+  file: fileService
+} = require("../services");
+const { Owner } = require("../models");
 
 function createOwnerToken(owner) {
   return authService.createJwt({
@@ -8,45 +12,45 @@ function createOwnerToken(owner) {
     name: owner.name,
     surname: owner.surname,
     phone: owner.phone,
-    owner: true,
+    owner: true
   });
 }
 
 const passwordPred = {
   pred: password => password.length >= 6,
-  predDesc: 'Password must have at least 6 characters',
+  predDesc: "Password must have at least 6 characters"
 };
 
 const register = {
   validation: {
     fields: [
       {
-        name: 'name',
-        type: 'string',
+        name: "name",
+        type: "string",
         required: true,
         pred: u => u.length >= 1,
-        predDesc: 'Empty strings not allowed',
+        predDesc: "Empty strings not allowed"
       },
       {
-        name: 'surname',
-        type: 'string',
+        name: "surname",
+        type: "string",
         required: true,
         pred: u => u.length >= 1,
-        predDesc: 'Empty strings not allowed',
+        predDesc: "Empty strings not allowed"
       },
       // TODO: validate email using a regexp
-      { name: 'email', type: 'string' },
+      { name: "email", type: "string" },
       // TODO: validate phone using a regexp
-      { name: 'phone', type: 'string' },
+      { name: "phone", type: "string" },
       {
-        name: 'password',
-        type: 'string',
+        name: "password",
+        type: "string",
         required: true,
-        ...passwordPred,
-      },
+        ...passwordPred
+      }
     ],
     pred: ({ phone, email }) => phone || email,
-    predDesc: 'Either phone or email must exist',
+    predDesc: "Either phone or email must exist"
   },
   async endpoint({ body }) {
     const { email, name, surname, password, phone } = body;
@@ -57,19 +61,19 @@ const register = {
     return { token };
   },
   data: {
-    token: 'string',
-  },
+    token: "string"
+  }
 };
 
 const login = {
   validation: {
     fields: [
-      { name: 'email', type: 'string' },
-      { name: 'phone', type: 'string' },
-      { name: 'password', type: 'string', required: true },
+      { name: "email", type: "string" },
+      { name: "phone", type: "string" },
+      { name: "password", type: "string", required: true }
     ],
     pred: ({ phone, email }) => phone || email,
-    predDesc: 'Phone or email must be provided',
+    predDesc: "Phone or email must be provided"
   },
   async endpoint({ body }) {
     const { email, phone, password } = body;
@@ -79,95 +83,131 @@ const login = {
     } else {
       user = await Owner.findOne({ phone });
     }
-    apiService.errorIf(!user, apiService.errors.NOT_FOUND, 'NoSuchUser');
+    apiService.errorIf(!user, apiService.errors.NOT_FOUND, "NoSuchUser");
     const wrongPass = !(await user.verifyPassword(password));
-    apiService.errorIf(wrongPass, apiService.errors.UNAUTHORIZED, 'WrongPassword');
+    apiService.errorIf(
+      wrongPass,
+      apiService.errors.UNAUTHORIZED,
+      "WrongPassword"
+    );
     const userObj = apiService.refineMongooseObject(user);
     const token = await createOwnerToken(userObj);
     return { token };
   },
   data: {
-    token: 'string',
-  },
+    token: "string"
+  }
 };
 
 const changePassword = {
   validation: {
     fields: [
-      { name: 'oldPassword', type: 'string', required: true },
-      { name: 'newPassword', type: 'string', required: true, ...passwordPred },
-    ],
+      { name: "oldPassword", type: "string", required: true },
+      { name: "newPassword", type: "string", required: true, ...passwordPred }
+    ]
   },
   async endpoint({ body, payload }) {
     const user = await Owner.findById(payload.id);
-    apiService.errorIf(!user, apiService.errors.NOT_FOUND, 'NoSuchOwner');
+    apiService.errorIf(!user, apiService.errors.NOT_FOUND, "NoSuchOwner");
     apiService.errorIf(
       !(await user.verifyPassword(body.oldPassword)),
       apiService.errors.UNAUTHORIZED,
-      'WrongPassword',
+      "WrongPassword"
     );
     await user.setPassword(body.newPassword);
     await user.save();
     return { success: true };
   },
   data: {
-    success: 'boolean',
-  },
+    success: "boolean"
+  }
 };
 
 const update = {
   validation: {
     fields: [
-      { name: 'name', type: 'string' },
-      { name: 'surname', type: 'string' },
-      { name: 'phone', type: 'string' },
-      { name: 'email', type: 'string' },
-    ],
+      { name: "name", type: "string" },
+      { name: "surname", type: "string" },
+      { name: "phone", type: "string" },
+      { name: "email", type: "string" }
+    ]
   },
   async endpoint({ body, payload }) {
     const user = await Owner.findById(payload.id);
-    apiService.errorIf(!user, apiService.errors.NOT_FOUND, 'NoSuchCustomer');
+    apiService.errorIf(!user, apiService.errors.NOT_FOUND, "NoSuchCustomer");
     Object.keys(body).forEach(field => {
       if (body[field]) {
         const type = typeof body[field];
-        if (type == 'string' && body[field].trim() != '') {
+        if (type == "string" && body[field].trim() != "") {
           user[field] = body[field];
         }
       }
     });
     return await user.save();
   },
-  data: apiService.refinedMongooseSchema(Owner),
+  data: apiService.refinedMongooseSchema(Owner)
 };
 
 const remove = {
   validation: {
     fields: [
       {
-        name: 'field',
-        pred: el => ['email', 'phone'].includes(el),
-        predDesc: 'Must be one of the following: email, phone',
-      },
-    ],
+        name: "field",
+        pred: el => ["email", "phone"].includes(el),
+        predDesc: "Must be one of the following: email, phone"
+      }
+    ]
   },
   async endpoint({ body, payload }) {
     const user = await Owner.findById(payload.id);
-    apiService.errorIf(!user, apiService.errors.NOT_FOUND, 'NoSuchCustomer');
-    if (body.field == 'email') {
-      apiService.errorIf(!user.phone, apiService.errors.INVALID_BODY, 'NoPhone');
+    apiService.errorIf(!user, apiService.errors.NOT_FOUND, "NoSuchCustomer");
+    if (body.field == "email") {
+      apiService.errorIf(
+        !user.phone,
+        apiService.errors.INVALID_BODY,
+        "NoPhone"
+      );
       user.email = undefined;
-    } else if (body.field == 'phone') {
-      apiService.errorIf(!user.email, apiService.errors.INVALID_BODY, 'NoEmail');
+    } else if (body.field == "phone") {
+      apiService.errorIf(
+        !user.email,
+        apiService.errors.INVALID_BODY,
+        "NoEmail"
+      );
       user.phone = undefined;
     }
     return await user.save();
   },
-  data: apiService.refinedMongooseSchema(Owner),
+  data: apiService.refinedMongooseSchema(Owner)
+};
+
+const uploadPic = {
+  async endpoint({ payload: { id }, tempDir }) {
+    apiService.errorIf(
+      !tempDir,
+      apiService.errors.INVALID_BODY,
+      "NoProfileImage"
+    );
+    const user = await Owner.findById(id);
+    apiService.errorIf(!user, apiService.errors.NOT_FOUND, "NoSuchUser");
+    const targetDir = fileService.getDir(
+      fileService.dirs.OWNER_PROFILE_PICTURES,
+      id
+    );
+    const { path } = await fileService.copyFile(tempDir, targetDir);
+    const toRemoves = [tempDir];
+    user.image = path;
+    await user.save();
+    // Do not wait for file removal, it can be done after sending the response
+    fileService.removeFilesAsync(toRemoves);
+    return { path };
+  },
+  data: { path: "string" }
 };
 
 const info = {
   endpoint: ({ payload }) => payload,
-  data: apiService.refinedMongooseSchema(Owner),
+  data: apiService.refinedMongooseSchema(Owner)
 };
 
 module.exports = {
@@ -177,4 +217,5 @@ module.exports = {
   changePassword,
   update,
   remove,
+  uploadPic
 };

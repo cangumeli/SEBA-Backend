@@ -10,6 +10,7 @@ addOwnerRoute(router, methods.GET, "/info", owner.info);
 addOwnerRoute(router, methods.PUT, "/password", owner.changePassword);
 addOwnerRoute(router, methods.PUT, "/info", owner.update);
 addOwnerRoute(router, methods.DELETE, "/info", owner.remove);
+addOwnerRoute(router, methods.POST, "/image", owner.uploadPic);
 // Shop operations
 addOwnerRoute(router, methods.POST, "/shop", shop.createShop);
 addOwnerRoute(router, methods.PUT, "/shop", shop.updateShop);
