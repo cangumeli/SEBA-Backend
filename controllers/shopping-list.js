@@ -23,6 +23,7 @@ const get = {
     let list = await ShoppingList.findOne({ user: payload.id });
     if (!list) {
       list = new ShoppingList({ user: payload.id });
+      list.save();
     }
     return list.items;
   },
