@@ -68,9 +68,9 @@ const login = {
   },
   async endpoint({ body: { email, password } }) {
     const user = await Customer.findOne({ email });
-    apiService.errorIf(!user, apiService.errors.NOT_FOUND, 'no-such-user');
+    apiService.errorIf(!user, apiService.errors.NOT_FOUND, 'NoSuchUser');
     const wrongPass = !(await user.verifyPassword(password));
-    apiService.errorIf(wrongPass, apiService.errors.UNAUTHORIZED, 'wrong-password');
+    apiService.errorIf(wrongPass, apiService.errors.UNAUTHORIZED, 'WrongPassword');
     const userObj = apiService.refineMongooseObject(user);
     const token = await createCustomerToken(userObj);
     return { token };
