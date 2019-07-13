@@ -50,6 +50,21 @@ const getItem = {
   },
 };
 
+const getItemList = {
+  validation: {
+    fields: [{ name: 'itemList', type: 'string', required: true, arrayOf: true }],
+  },
+  async endpoint({ body: { itemList } }) {
+    let item = await Item.find({ _id: itemList });
+    apiService.errorIf(!item, apiService.errors.NOT_FOUND, 'NoSuchItem');
+    return item;
+  },
+  data: {
+    array: true,
+    ...apiService.refinedMongooseSchema(Item),
+  },
+};
+
 const updateItem = {
   validation: {
     fields: [
@@ -161,6 +176,7 @@ module.exports = {
   addItem,
   deleteItem,
   getItem,
+  getItemList,
   uploadPicture,
   removePicture,
 };
