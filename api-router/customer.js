@@ -17,6 +17,7 @@ addCustomerRoute(router, methods.DELETE, '/image', customer.removePicture);
 // Inventory
 addRoute(router, methods.GET, '/inventory', item.getInventory);
 addRoute(router, methods.GET, '/item', item.getItem);
+addRoute(router, methods.GET, '/items', item.getItemList);
 // Comment
 addRoute(router, methods.GET, '/comments', comment.getAll);
 addCustomerRoute(router, methods.GET, '/comment', comment.get);
