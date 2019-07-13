@@ -48,6 +48,7 @@ const create = {
     }
     return comment.save();
   },
+  data: apiService.refinedMongooseSchema(Comment),
 };
 
 const get = {
