@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { customer, item, comment, shoppingList } = require('../controllers');
+const { customer, item, comment, shoppingList, shop } = require('../controllers');
 const { addRoute, addCustomerRoute, methods, addStaticRoute } = require('./util');
 const { file: fileService } = require('../services');
 
@@ -20,6 +20,7 @@ addRoute(router, methods.GET, '/item', item.getItem);
 addRoute(router, methods.GET, '/items', item.getItemList);
 // Comment
 addRoute(router, methods.GET, '/comments', comment.getAll);
+addRoute(router, methods.GET, '/rating', comment.getRating);
 addCustomerRoute(router, methods.GET, '/comment', comment.get);
 addCustomerRoute(router, methods.POST, '/comment', comment.create);
 addCustomerRoute(router, methods.PUT, '/comment', comment.update);
@@ -33,4 +34,5 @@ addCustomerRoute(router, methods.DELETE, '/shoppingListItem', shoppingList.remov
 addCustomerRoute(router, methods.DELETE, '/shoppingList', shoppingList.removeAll);
 // Shop
 addStaticRoute(router, '/shop/image', fileService.dirs.SHOP_PICTURES);
+addRoute(router, methods.GET, '/shop', shop.get);
 module.exports = router;

@@ -58,7 +58,6 @@ const get = {
   async endpoint({ body, payload }) {
     const comment = await Comment.findById(body.id).where({ userId: payload.id });
     apiService.errorIf(!comment, apiService.errors.NOT_FOUND, 'NoSuchComment');
-
     return comment;
   },
 };
@@ -83,12 +82,48 @@ const getAll = {
       comments = await ItemComment.find({
         itemId,
       });
+      console.log(comments);
     } else if (userId) {
       comments = await Comment.find({
         userId,
       });
     }
     return comments;
+  },
+};
+
+const getRating = {
+  validation: {
+    fields: [{ name: 'shopId', type: 'string' }, { name: 'itemId', type: 'string' }],
+    pred: ({ shopId, itemId }) => shopId || itemId,
+    predDesc: 'Either shopId or itemId must exist',
+  },
+  async endpoint({ body: { shopId, itemId } }) {
+    let comments;
+    let avg = 0;
+    let commentNum = 0;
+    if (shopId) {
+      comments = await ShopComment.find({
+        shopId,
+      });
+      comments.forEach(element => {
+        avg += element.rating;
+        commentNum++;
+      });
+      avg /= commentNum;
+    } else if (itemId) {
+      comments = await ItemComment.find({
+        itemId,
+      });
+      console.log(comments);
+      comments.forEach(element => {
+        console.log(element);
+        avg += element.rating;
+        commentNum++;
+      });
+      avg /= commentNum;
+    }
+    return avg;
   },
 };
 
@@ -163,4 +198,5 @@ module.exports = {
   getAll,
   upvote,
   downvote,
+  getRating,
 };

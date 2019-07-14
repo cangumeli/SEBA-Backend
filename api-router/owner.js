@@ -32,6 +32,8 @@ addOwnerRoute(router, methods.GET, '/comments/getAll', comment.getAll);
 addOwnerRoute(router, methods.POST, '/inventory', item.addInventory);
 addOwnerRoute(router, methods.GET, '/inventory', item.getInventory);
 addOwnerRoute(router, methods.PUT, '/item', item.updateItem);
+addOwnerRoute(router, methods.GET, '/item', item.getItem);
+addOwnerRoute(router, methods.GET, '/items', item.getItemList);
 addOwnerRoute(router, methods.POST, '/item', item.addItem);
 addOwnerRoute(router, methods.DELETE, '/item', item.deleteItem);
 addOwnerRoute(router, methods.POST, '/item/image', item.uploadPicture);

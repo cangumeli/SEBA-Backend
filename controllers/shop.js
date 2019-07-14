@@ -75,9 +75,8 @@ const get = {
     fields: [{ name: 'id', type: 'string', required: true }],
   },
   async endpoint({ body, payload }) {
-    const shop = await Shop.findById(body.id).where({ owner: payload.id });
+    const shop = await Shop.findById(body.id);
     apiService.errorIf(!shop, apiService.errors.NOT_FOUND, 'NoSuchShop');
-
     return shop;
   },
 };
