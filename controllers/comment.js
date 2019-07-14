@@ -77,11 +77,11 @@ const getAll = {
     if (shopId) {
       comments = await ShopComment.find({
         shopId,
-      });
+      }).sort({ upvote: -1 });
     } else if (itemId) {
       comments = await ItemComment.find({
         itemId,
-      });
+      }).sort({ upvote: -1 });
       console.log(comments);
     } else if (userId) {
       comments = await Comment.find({
@@ -101,16 +101,14 @@ const getRating = {
   async endpoint({ body: { shopId, itemId } }) {
     let comments;
     let avg = 0;
-    let commentNum = 0;
     if (shopId) {
       comments = await ShopComment.find({
         shopId,
       });
       comments.forEach(element => {
         avg += element.rating;
-        commentNum++;
       });
-      avg /= commentNum;
+      avg /= comments.length;
     } else if (itemId) {
       comments = await ItemComment.find({
         itemId,
@@ -119,9 +117,8 @@ const getRating = {
       comments.forEach(element => {
         console.log(element);
         avg += element.rating;
-        commentNum++;
       });
-      avg /= commentNum;
+      avg /= comments.length;
     }
     return avg;
   },
