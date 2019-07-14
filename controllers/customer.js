@@ -165,6 +165,16 @@ const info = {
   data: apiService.refinedMongooseSchema(Customer),
 };
 
+const getName = {
+  validation: {
+    fields: [{ name: 'userId', type: 'string', required: true }],
+  },
+  async endpoint({ body, payload }) {
+    const user = await Customer.findById(body.userId);
+    return `${user.name} ${user.surname}`;
+  },
+};
+
 const uploadPic = {
   async endpoint({ payload: { id }, tempDir, fileFormat }) {
     apiService.errorIf(!tempDir, apiService.errors.INVALID_BODY, 'NoProfileImage');
@@ -205,6 +215,7 @@ module.exports = {
   register,
   login,
   info,
+  getName,
   changePassword,
   update,
   remove,
