@@ -29,10 +29,10 @@ addCustomerRoute(router, methods.DELETE, '/comment', comment.deleteComment);
 addCustomerRoute(router, methods.PUT, '/comment/upvote', comment.upvote);
 addCustomerRoute(router, methods.PUT, '/comment/downvote', comment.downvote);
 // Shopping list
-addCustomerRoute(router, methods.GET, '/shoppingList', shoppingList.get);
-addCustomerRoute(router, methods.POST, '/shoppingList', shoppingList.addItem);
-addCustomerRoute(router, methods.DELETE, '/shoppingListItem', shoppingList.removeItem);
-addCustomerRoute(router, methods.DELETE, '/shoppingList', shoppingList.removeAll);
+addCustomerRoute(router, methods.GET, '/shopping-list', shoppingList.get);
+addCustomerRoute(router, methods.POST, '/shopping-list/item', shoppingList.addItem);
+addCustomerRoute(router, methods.DELETE, '/shopping-list/item', shoppingList.removeItem);
+addCustomerRoute(router, methods.DELETE, '/shopping-list/items', shoppingList.removeAll);
 // Shop
 addStaticRoute(router, '/shop/image', fileService.dirs.SHOP_PICTURES);
 addRoute(router, methods.GET, '/shop', shop.get);
