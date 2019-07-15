@@ -42,7 +42,9 @@ const removeItem = {
       'ItemNotInShoppingList',
     );
     list.items.pull({ _id: body.itemId });
-    return list.save();
+    list.save();
+
+    return list.items;
   },
 };
 
