@@ -158,11 +158,9 @@ const unsubscribe = {
 };
 
 const getSubscriptions = {
-  validation: {
-    fields: [{ name: 'shopId', type: 'string', required: true }],
-  },
-  async endpoint({ body: { shopId } }) {
-    const subscriptions = await Subscription.find({ shopId });
+  async endpoint({ payload }) {
+    const shop_ids = await Shop.find({ owner: payload.id }, { _id: 1 }).map(shop => shop.id);
+    const subscriptions = await Subscription.find({ shop_ids });
 
     apiService.errorIf(!subscriptions, apiService.errors.NOT_FOUND, 'NoSuchSubscriptions');
 
