@@ -1,6 +1,8 @@
-const { Shop, Item, Subscription } = require('../models');
+const { Shop, Item, Subscription, Comment } = require('../models');
 const { api: apiService, file: fileService } = require('../services');
 const { sep } = require('path');
+
+const commentAggregation = { _id: '$shopId', average: { $avg: '$rating' }, count: { $sum: 1 } };
 
 const createShop = {
   validation: {
@@ -65,7 +67,13 @@ const updateShop = {
     if (body.description || body.description === '') {
       shop.description = body.description;
     }
-    return shop.save();
+    const saved = await shop.save();
+    const [{ average, count }] = await Comment.aggregate()
+      .match({ shopId: shop._id })
+      .group(commentAggregation);
+    saved.numComments = count;
+    saved.averageRating = average;
+    return saved;
   },
   data: apiService.refinedMongooseSchema(Shop),
 };
@@ -77,12 +85,32 @@ const get = {
   async endpoint({ body, payload }) {
     const shop = await Shop.findById(body.id);
     apiService.errorIf(!shop, apiService.errors.NOT_FOUND, 'NoSuchShop');
+    const [{ average, count }] = await Comment.aggregate()
+      .match({ shopId: shop._id })
+      .group(commentAggregation);
+    shop.numComments = count;
+    shop.averageRating = average;
     return shop;
   },
 };
 
 const getShops = {
-  endpoint: ({ payload: { id } }) => Shop.find({ owner: id }).exec(),
+  endpoint: async ({ payload: { id } }) => {
+    const shops = await Shop.find({ owner: id });
+    const shopIds = shops.map(shop => shop._id);
+    const aggs = await Comment.aggregate()
+      .match({ shopId: { $in: shops.map(shop => shop._id) } })
+      .group(commentAggregation);
+    // console.log(aggs, shopIds);
+    aggs.forEach(a => {
+      const shop = shops.find(shop => shop._id.toString() == a._id.toString());
+      if (shop) {
+        shop.averageRating = a.average;
+        shop.numComments = a.count;
+      }
+    });
+    return shops;
+  },
   data: { array: true, ...apiService.refinedMongooseSchema(Shop) },
 };
 
