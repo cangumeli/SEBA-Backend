@@ -9,6 +9,7 @@ addRoute(router, methods.POST, '/login', customer.login);
 addRoute(router, methods.POST, '/register', customer.register);
 addCustomerRoute(router, methods.GET, '/info', customer.info);
 addCustomerRoute(router, methods.GET, '/user', customer.getName);
+addCustomerRoute(router, methods.GET, '/users', customer.getNameList);
 addCustomerRoute(router, methods.PUT, '/password', customer.changePassword);
 addCustomerRoute(router, methods.PUT, '/info', customer.update);
 addCustomerRoute(router, methods.DELETE, '/info', customer.remove);

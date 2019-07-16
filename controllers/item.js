@@ -20,8 +20,10 @@ const addItem = {
       { name: 'detail', type: 'string' },
       { name: 'isSponsored', type: 'bool' },
       { name: 'material', type: 'string' },
+      { name: 'size', type: 'string' },
     ],
   },
+
   async endpoint({ body, payload }) {
     await checkOwnership(body.shopId, payload.id);
     return await Item.create({ ...body, lastImageIndex: 0 });
