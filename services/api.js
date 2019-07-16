@@ -137,6 +137,9 @@ module.exports.validateBody = ({ validation, data }) => (req, res, next) => {
  * for api to return
  */
 module.exports.refineMongooseObject = function refineMongooseObject(mobj, noCheck) {
+  if (ObjectIdField.isValid(mobj.toString())) {
+    return mobj;
+  }
   if (Array.isArray(mobj)) {
     return mobj.map(refineMongooseObject);
   }
