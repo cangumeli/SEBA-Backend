@@ -1,5 +1,6 @@
 const {
   SchemaTypes: { ObjectId },
+  Types: { ObjectId: ObjectIdField },
 } = require('mongoose');
 /**
  * Use handle with every controller to properly check errors
@@ -135,19 +136,26 @@ module.exports.validateBody = ({ validation, data }) => (req, res, next) => {
  * Remove private fields from mongoose objects
  * for api to return
  */
-module.exports.refineMongooseObject = function refineMongooseObject(mobj) {
+module.exports.refineMongooseObject = function refineMongooseObject(mobj, noCheck) {
   if (Array.isArray(mobj)) {
     return mobj.map(refineMongooseObject);
   }
   //https://stackoverflow.com/questions/10827108/mongoose-check-if-object-is-mongoose-object
-  if (mobj.constructor.name !== 'model') {
+  if (!noCheck && mobj.constructor.name !== 'model') {
     return mobj;
   }
-  const obj = mobj.toObject();
+  const obj = (mobj.toObject && mobj.toObject()) || mobj;
   const refinedObj = { id: obj._id };
   Object.keys(obj).forEach(key => {
     if (!key.startsWith('_')) {
-      refinedObj[key] = obj[key];
+      const val = obj[key];
+      let refinedVal;
+      if (val && val._id && !ObjectIdField.isValid(val.toString())) {
+        refinedVal = refineMongooseObject(val, true);
+      } else {
+        refinedVal = val;
+      }
+      refinedObj[key] = refinedVal;
     }
   });
   return refinedObj;

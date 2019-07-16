@@ -3,6 +3,8 @@ const { ItemComment } = require('../models');
 const { ShopComment } = require('../models');
 const { Comment } = require('../models');
 
+const userPopulation = { path: 'userId', select: Comment.userIdPopulateFields() };
+
 const create = {
   validation: {
     fields: [
@@ -23,7 +25,7 @@ const create = {
     pred: ({ shopId, itemId }) => shopId || itemId,
     predDesc: 'Either shopId or itemId must exist',
   },
-  endpoint({ body: { text, rating, date, upvote, downvote, shopId, itemId }, payload }) {
+  async endpoint({ body: { text, rating, date, upvote, downvote, shopId, itemId }, payload }) {
     let comment;
     if (shopId) {
       comment = new ShopComment({
@@ -46,7 +48,8 @@ const create = {
         itemId,
       });
     }
-    return comment.save();
+    const saved = await comment.save();
+    return Comment.populate(saved, userPopulation);
   },
   data: apiService.refinedMongooseSchema(Comment),
 };
@@ -56,7 +59,7 @@ const get = {
     fields: [{ name: 'id', type: 'string', required: true }],
   },
   async endpoint({ body, payload }) {
-    const comment = await Comment.findById(body.id).where({ userId: payload.id });
+    const comment = await Comment.findById(body.id).populate(userPopulation);
     apiService.errorIf(!comment, apiService.errors.NOT_FOUND, 'NoSuchComment');
     return comment;
   },
@@ -77,16 +80,19 @@ const getAll = {
     if (shopId) {
       comments = await ShopComment.find({
         shopId,
-      }).sort({ upvote: -1 });
+      })
+        .sort({ upvote: -1 })
+        .populate(userPopulation);
     } else if (itemId) {
       comments = await ItemComment.find({
         itemId,
-      }).sort({ upvote: -1 });
-      console.log(comments);
+      })
+        .sort({ upvote: -1 })
+        .populate(userPopulation);
     } else if (userId) {
       comments = await Comment.find({
         userId,
-      });
+      }).populate(userPopulation);
     }
     return comments;
   },
@@ -139,8 +145,7 @@ const update = {
       new: true,
     });
     apiService.errorIf(!comment, apiService.errors.NOT_FOUND, 'NoSuchComment');
-
-    return comment.save();
+    return Comment.populate(comment, userPopulation);
   },
 };
 
@@ -170,7 +175,8 @@ const upvote = {
     apiService.errorIf(!comment, apiService.errors.NOT_FOUND, 'NoSuchComment');
     comment.upvote.addToSet(payload.id);
     comment.downvote.pull(payload.id);
-    return comment.save();
+    const saved = await comment.save();
+    return Comment.populate(saved, userPopulation);
   },
 };
 
@@ -183,7 +189,8 @@ const downvote = {
     apiService.errorIf(!comment, apiService.errors.NOT_FOUND, 'NoSuchComment');
     comment.downvote.addToSet(payload.id);
     comment.upvote.pull(payload.id);
-    return comment.save();
+    const saved = await comment.save();
+    return Comment.populate(saved, userPopulation);
   },
 };
 

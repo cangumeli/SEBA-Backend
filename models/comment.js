@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const commentSchema = new mongoose.Schema({
   text: { type: String, required: true },
@@ -6,23 +6,33 @@ const commentSchema = new mongoose.Schema({
   date: { type: Date },
   upvote: [mongoose.SchemaTypes.ObjectId],
   downvote: [mongoose.SchemaTypes.ObjectId],
-  userId: { type: mongoose.SchemaTypes.ObjectId, required: true }
+  userId: { type: mongoose.SchemaTypes.ObjectId, required: true, ref: 'Customer' },
 });
 
-const Comment = mongoose.model("Comment", commentSchema);
+commentSchema.statics.userIdPopulateFields = function() {
+  return { _id: 1, name: 1, surname: 1 };
+};
+
+const Comment = mongoose.model('Comment', commentSchema);
 
 module.exports.Comment = Comment;
 
-module.exports.ShopComment = Comment.discriminator(
-  "ShopComment",
+const ShopComment = Comment.discriminator(
+  'ShopComment',
   new mongoose.Schema({
-    shopId: { type: mongoose.SchemaTypes.ObjectId, index: true }
-  })
+    shopId: { type: mongoose.SchemaTypes.ObjectId, index: true, ref: 'Shop' },
+  }),
 );
 
-module.exports.ItemComment = Comment.discriminator(
-  "ItemComment",
+const ItemComment = Comment.discriminator(
+  'ItemComment',
   new mongoose.Schema({
-    itemId: { type: mongoose.SchemaTypes.ObjectId, index: true }
-  })
+    itemId: { type: mongoose.SchemaTypes.ObjectId, index: true, ref: 'Item' },
+  }),
 );
+
+module.exports = {
+  Comment,
+  ShopComment,
+  ItemComment,
+};
