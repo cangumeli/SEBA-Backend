@@ -2,6 +2,8 @@ const { Shop, Item } = require('../models');
 const { api: apiService, file: fileService } = require('../services');
 const { sep } = require('path');
 
+const shopPopulation = { path: 'shopId', select: Item.shopIdPopulateFields() };
+
 async function checkOwnership(shopId, userId) {
   const shop = await Shop.findById(shopId)
     .where({ owner: userId })
@@ -24,7 +26,8 @@ const addItem = {
   },
   async endpoint({ body, payload }) {
     await checkOwnership(body.shopId, payload.id);
-    return await Item.create({ ...body, lastImageIndex: 0 });
+    const item = await Item.create({ ...body, lastImageIndex: 0 });
+    return Item.populate(item, shopPopulation);
   },
 };
 
@@ -37,14 +40,15 @@ const deleteItem = {
     apiService.errorIf(!item, apiService.errors.NOT_FOUND, 'NoSuchItem');
     await checkOwnership(item.shopId, payload.id);
     item.remove();
-    return await item.save();
+    const saved = await item.save();
+    return Item.populate(saved, shopPopulation);
   },
 };
 
 const getItem = {
   validation: deleteItem.validation,
   async endpoint({ body: { itemId } }) {
-    const item = await Item.findById(itemId);
+    const item = await Item.findById(itemId).populate(shopPopulation);
     apiService.errorIf(!item, apiService.errors.NOT_FOUND, 'NoSuchItem');
     return item;
   },
@@ -55,9 +59,9 @@ const getItemList = {
     fields: [{ name: 'itemList', type: 'string', required: true, arrayOf: true }],
   },
   async endpoint({ body: { itemList } }) {
-    let item = await Item.find({ _id: itemList });
-    apiService.errorIf(!item, apiService.errors.NOT_FOUND, 'NoSuchItem');
-    return item;
+    let items = await Item.find({ _id: itemList }).populate(shopPopulation);
+    apiService.errorIf(!items, apiService.errors.NOT_FOUND, 'NoSuchItem');
+    return items;
   },
   data: {
     array: true,
@@ -83,7 +87,8 @@ const updateItem = {
         item[key] = body[key];
       }
     });
-    return await item.save();
+    const saved = await item.save();
+    return Item.populate(saved, shopPopulation);
   },
 };
 
@@ -98,7 +103,7 @@ const addInventory = {
 
     const items = await fileService.readCSV(tempDir);
 
-    return await Item.insertMany(
+    const docs = await Item.insertMany(
       items.map(item => ({
         shopId: shopId,
         name: item['name'],
@@ -109,15 +114,18 @@ const addInventory = {
         material: item['material'],
       })),
     );
+    return Item.populate(docs, shopPopulation);
   },
-  data: { path: 'string' },
 };
 
 const getInventory = {
   validation: {
     fields: [{ name: 'shopId', type: 'string', required: true }],
   },
-  endpoint: ({ body: { shopId } }) => Item.find({ shopId }).exec(),
+  endpoint: ({ body: { shopId } }) =>
+    Item.find({ shopId })
+      .populate(shopPopulation)
+      .exec(),
   data: {
     array: true,
     ...apiService.refinedMongooseSchema(Item),

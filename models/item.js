@@ -14,4 +14,8 @@ const itemSchema = new mongoose.Schema({
   lastImageIndex: { type: Number },
 });
 
+itemSchema.statics.shopIdPopulateFields = function() {
+  return { _id: 1, location: 1, locationDesc: 1, title: 1 };
+};
+
 module.exports = mongoose.model('Item', itemSchema);
