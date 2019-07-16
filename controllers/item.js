@@ -1,8 +1,10 @@
-const { Shop, Item } = require('../models');
+const { Shop, Item, Comment } = require('../models');
 const { api: apiService, file: fileService } = require('../services');
 const { sep } = require('path');
 
 const shopPopulation = { path: 'shopId', select: Item.shopIdPopulateFields() };
+
+const commentAggregation = { _id: '$itemId', average: { $avg: '$rating' }, count: { $sum: 1 } };
 
 async function checkOwnership(shopId, userId) {
   const shop = await Shop.findById(shopId)
@@ -50,6 +52,15 @@ const getItem = {
   async endpoint({ body: { itemId } }) {
     const item = await Item.findById(itemId).populate(shopPopulation);
     apiService.errorIf(!item, apiService.errors.NOT_FOUND, 'NoSuchItem');
+    // Find the average rating and number of comments
+    // const agg = await ItemComment.find({ itemId });
+
+    // const agg = await Comment.aggregate([{ $match: { itemId: item._id } }, { $count: 'count' }]);
+    const agg = await Comment.aggregate()
+      .match({ itemId: item._id })
+      .group(commentAggregation);
+    item.averageRating = agg[0].average;
+    item.numComments = agg[0].count;
     return item;
   },
 };
@@ -61,6 +72,16 @@ const getItemList = {
   async endpoint({ body: { itemList } }) {
     let items = await Item.find({ _id: itemList }).populate(shopPopulation);
     apiService.errorIf(!items, apiService.errors.NOT_FOUND, 'NoSuchItem');
+    const res = (await Comment.aggregate()
+      .match({
+        itemId: { $in: items.map(item => item._id) },
+      })
+      .group(commentAggregation))[0];
+    console.log(res);
+    /*items.forEach(item => {
+        item.numComments = count;
+        item.averageRating = average;
+    })*/
     return items;
   },
   data: {
@@ -88,7 +109,13 @@ const updateItem = {
       }
     });
     const saved = await item.save();
-    return Item.populate(saved, shopPopulation);
+    const poped = await Item.populate(saved, shopPopulation);
+    const { count, average } = (await Comment.aggregate()
+      .match({ itemId: item._id })
+      .group(commentAggregation))[0];
+    poped.averageRating = average;
+    poped.numComments = count;
+    return poped;
   },
 };
 
@@ -122,10 +149,20 @@ const getInventory = {
   validation: {
     fields: [{ name: 'shopId', type: 'string', required: true }],
   },
-  endpoint: ({ body: { shopId } }) =>
-    Item.find({ shopId })
-      .populate(shopPopulation)
-      .exec(),
+  endpoint: async ({ body: { shopId } }) => {
+    const items = await Item.find({ shopId }).populate(shopPopulation);
+    const aggs = await Comment.aggregate()
+      .match({ itemId: { $in: items.map(item => item._id) } })
+      .group(commentAggregation);
+    aggs.forEach(a => {
+      const item = items.find(item => item._id.toString() == a._id.toString());
+      if (item) {
+        item.numComments = a.count;
+        item.averageRating = a.average;
+      }
+    });
+    return items;
+  },
   data: {
     array: true,
     ...apiService.refinedMongooseSchema(Item),

@@ -12,6 +12,8 @@ const itemSchema = new mongoose.Schema({
   detail: { type: String },
   images: [String],
   lastImageIndex: { type: Number },
+  averageRating: Number,
+  numComments: Number,
 });
 
 itemSchema.statics.shopIdPopulateFields = function() {
