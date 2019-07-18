@@ -72,16 +72,16 @@ const getItemList = {
   async endpoint({ body: { itemList } }) {
     let items = await Item.find({ _id: itemList }).populate(shopPopulation);
     apiService.errorIf(!items, apiService.errors.NOT_FOUND, 'NoSuchItem');
-    const res = (await Comment.aggregate()
-      .match({
-        itemId: { $in: items.map(item => item._id) },
-      })
-      .group(commentAggregation))[0];
-    console.log(res);
-    /*items.forEach(item => {
-        item.numComments = count;
-        item.averageRating = average;
-    })*/
+    const aggs = await Comment.aggregate()
+      .match({ itemId: { $in: items.map(item => item._id) } })
+      .group(commentAggregation);
+    aggs.forEach(a => {
+      const item = items.find(item => item._id.toString() == a._id.toString());
+      if (item) {
+        item.numComments = a.count;
+        item.averageRating = a.average;
+      }
+    });
     return items;
   },
   data: {
