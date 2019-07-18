@@ -1,4 +1,4 @@
-const { api: apiService } = require('../services');
+const { api: apiService, file: fileService } = require('../services');
 const { ShoppingList } = require('../models');
 
 const addItem = {
@@ -58,9 +58,22 @@ const removeAll = {
   },
 };
 
+const exportPDF = {
+  validation: { fields: [] },
+  async endpoint({ payload }) {
+    const list = await ShoppingList.findOne({ user: payload.id }).populate('items');
+    const listObj = apiService.refineMongooseObject(list);
+    const filename = payload.id + '.pdf';
+    await fileService.exportPDF(filename, listObj.items);
+    return { path: filename };
+  },
+  data: { path: 'string' },
+};
+
 module.exports = {
   addItem,
   get,
   removeItem,
   removeAll,
+  exportPDF,
 };
