@@ -1,12 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
+const PDFDocument = require('pdfkit');
 
 const dirs = {
   CUSTOMER_PROFILE_PICTURES: './CustomerProfilePictures',
   OWNER_PROFILE_PICTURES: './OwnerProfilePictures',
   ITEM_PICTURES: './ItemPictures',
   SHOP_PICTURES: './ShopPictures',
+  PDF_FILES: './PDFs',
 };
 
 /* dirFor is an element from module.exports.dirs*/
@@ -45,6 +47,25 @@ function readCSV(tempDir) {
   });
 }
 
+async function exportPDF(filename, data) {
+  const doc = new PDFDocument();
+  const dir = dirs.PDF_FILES + path.sep + filename;
+  doc.pipe(fs.WriteStream(dir));
+  data.forEach(datum => {
+    doc
+      //.font('fonts/PalatinoBold.ttf')
+      .fontSize(15)
+      .text('\n' + datum.name)
+      .fontSize(12)
+      .text('Price: ' + datum.price)
+      .text('Tag: ' + datum.tag)
+      .text('Category: ' + datum.category);
+  });
+  doc.save();
+  doc.end();
+  return { path: dir };
+}
+
 function removeFilesAsync(dirs) {
   let toRemove = dirs;
   if (!Array.isArray(dirs)) {
@@ -76,4 +97,5 @@ module.exports = {
   getDir,
   removeFile,
   readCSV,
+  exportPDF,
 };
