@@ -8,3 +8,9 @@ ItemPictures
 ShopPictures
 OwnerProfilePictures
 CustomerProfilePictures
+.idea/misc.xml
+.idea/modules.xml
+.idea/SEBA-Backend.iml
+.idea/vcs.xml
+.idea/workspace.xml
+.vscode/launch.json
