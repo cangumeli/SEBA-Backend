@@ -41,7 +41,7 @@ function readCSV(tempDir) {
       .on('data', row => items.push(row))
       .on('error', err => reject(err))
       .on('end', () => {
-        removeFilesAsync(tempDir);
+        removeFile(tempDir);
         resolve(items);
       });
   });
