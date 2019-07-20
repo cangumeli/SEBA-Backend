@@ -26,6 +26,21 @@ async function aggregateItems(items) {
   });
 }
 
+async function aggregateShops(shops) {
+  const commentAggregation = { _id: '$shopId', average: { $avg: '$rating' }, count: { $sum: 1 } };
+  const aggs = await Comment.aggregate()
+    .match({ shopId: { $in: shops.map(shop => shop._id) } })
+    .group(commentAggregation);
+  console.log(aggs, shops);
+  aggs.forEach(a => {
+    const shop = shops.find(shop => shop._id.toString() == a._id.toString());
+    if (shop) {
+      shop.averageRating = a.average;
+      shop.numComments = a.count;
+    }
+  });
+}
+
 const addItem = {
   validation: {
     fields: [
@@ -316,6 +331,7 @@ const searchItems = {
       items = items.slice(skip, skip + limit);
     }
     items = await Item.populate(items, { path: 'shopId', select: Item.shopIdPopulateFields() });
+    await aggregateShops(items.map(item => item.shopId));
     items.forEach(item => {
       item.id = item._id.toString();
       item.shopId = apiService.refineMongooseObject(item.shopId);
