@@ -73,8 +73,10 @@ const getItem = {
     const agg = await Comment.aggregate()
       .match({ itemId: item._id })
       .group(commentAggregation);
-    item.averageRating = agg[0].average;
-    item.numComments = agg[0].count;
+    if (agg[0]) {
+      item.averageRating = agg[0].average;
+      item.numComments = agg[0].count;
+    }
     return item;
   },
 };
