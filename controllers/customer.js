@@ -131,7 +131,7 @@ const update = {
         }
       }
     });
-    return user.save();
+    return await user.save();
   },
   data: apiService.refinedMongooseSchema(Customer),
 };
@@ -161,7 +161,12 @@ const remove = {
 };
 
 const info = {
-  endpoint: ({ payload }) => payload,
+  async endpoint({ payload }) {
+    const user = await Customer.findById(payload.id);
+    apiService.errorIf(!user, apiService.errors.NOT_FOUND, 'NoSuchCustomer');
+
+    return await user;
+  },
   data: apiService.refinedMongooseSchema(Customer),
 };
 
