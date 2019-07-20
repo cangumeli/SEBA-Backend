@@ -199,7 +199,12 @@ const removePicture = {
 };
 
 const info = {
-  endpoint: ({ payload }) => payload,
+  async endpoint({ payload }) {
+    const user = await Owner.findById(payload.id);
+    apiService.errorIf(!user, apiService.errors.NOT_FOUND, 'NoSuchOwner');
+
+    return await user;
+  },
   data: apiService.refinedMongooseSchema(Owner),
 };
 
