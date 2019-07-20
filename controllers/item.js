@@ -316,6 +316,9 @@ const searchItems = {
       items = items.slice(skip, skip + limit);
     }
     items = await Item.populate(items, { path: 'shopId', select: Item.shopIdPopulateFields() });
+    items.forEach(item => {
+      item.id = item._id.toString();
+    });
     return items;
   },
 };

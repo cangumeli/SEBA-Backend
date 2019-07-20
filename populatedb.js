@@ -59,7 +59,7 @@ async function populateData() {
     owner: owner1._id,
     title: 'Rewe',
     description: 'Rewe is a supermarket chain which sells basic home goods.',
-    location: { type: 'Point', coordinates: [41.40338, 2.17403] },
+    location: { type: 'Point', coordinates: [11.582, 48.1351] },
   });
   shop1 = await shop1.save();
   let item1 = new Item({
@@ -129,6 +129,7 @@ async function populateData() {
     items: [item1._id, item3._id],
   });
   shoppingList1 = await shoppingList1.save();
+  process.exit(0);
 }
 
 mongoose.connect(cfg.DB_URL, { useNewUrlParser: true });
