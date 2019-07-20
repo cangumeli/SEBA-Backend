@@ -16,9 +16,11 @@ const shopSchema = new mongoose.Schema({
       required: true,
     },
   },
-  image: String,
   averageRating: Number,
   numComments: Number,
+  email: String,
+  phone: String,
+  image: String,
 });
 
 shopSchema.index({ location: '2dsphere' });

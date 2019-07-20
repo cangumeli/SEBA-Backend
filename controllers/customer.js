@@ -180,6 +180,20 @@ const getName = {
   },
 };
 
+const getNameList = {
+  validation: {
+    fields: [{ name: 'userId', type: 'string', required: true, arrayOf: true }],
+  },
+  async endpoint({ body: { userId } }) {
+    const nameList = [];
+    const user = await Customer.find({ _id: userId });
+    user.forEach(field => {
+      nameList.push(`${field.name} ${field.surname}`);
+    });
+    return nameList.reverse();
+  },
+};
+
 const uploadPic = {
   async endpoint({ payload: { id }, tempDir, fileFormat }) {
     apiService.errorIf(!tempDir, apiService.errors.INVALID_BODY, 'NoProfileImage');
@@ -221,6 +235,7 @@ module.exports = {
   login,
   info,
   getName,
+  getNameList,
   changePassword,
   update,
   remove,

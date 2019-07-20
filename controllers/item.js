@@ -55,6 +55,7 @@ const addItem = {
       { name: 'size', type: 'string' },
     ],
   },
+
   async endpoint({ body, payload }) {
     await checkOwnership(body.shopId, payload.id);
     const item = await Item.create({ ...body, lastImageIndex: 0 });

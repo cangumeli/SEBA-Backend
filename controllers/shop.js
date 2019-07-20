@@ -24,6 +24,14 @@ const createShop = {
         arrayPred: coordinates => coordinates.length === 2,
         arrayPredDesc: '[lon, lat] format is expected',
       },
+      {
+        name: 'email',
+        type: 'string',
+      },
+      {
+        name: 'phone',
+        type: 'string',
+      },
     ],
   },
   endpoint({ body: { title, locationDesc, description, coordinates }, payload }) {
@@ -67,12 +75,19 @@ const updateShop = {
     if (body.description || body.description === '') {
       shop.description = body.description;
     }
+    if (body.email || body.email === '') {
+      shop.email = body.email;
+    }
+    if (body.description || body.description === '') {
+      shop.phone = body.phone;
+    }
     const saved = await shop.save();
     const [{ average, count }] = await Comment.aggregate()
       .match({ shopId: shop._id })
       .group(commentAggregation);
     saved.numComments = count;
     saved.averageRating = average;
+
     return saved;
   },
   data: apiService.refinedMongooseSchema(Shop),
@@ -186,11 +201,9 @@ const unsubscribe = {
 };
 
 const getSubscriptions = {
-  validation: {
-    fields: [{ name: 'shopId', type: 'string', required: true }],
-  },
-  async endpoint({ body: { shopId } }) {
-    const subscriptions = await Subscription.find({ shopId });
+  async endpoint({ payload }) {
+    const shop_ids = await Shop.find({ owner: payload.id }, { _id: 1 }).map(shop => shop.id);
+    const subscriptions = await Subscription.find({ shop_ids });
 
     apiService.errorIf(!subscriptions, apiService.errors.NOT_FOUND, 'NoSuchSubscriptions');
 
@@ -203,6 +216,7 @@ const uploadPicture = {
     fields: [{ name: 'shopId', type: 'string', required: true }],
   },
   async endpoint({ body: { shopId }, payload: { id: ownerId }, tempDir, fileFormat }) {
+    console.log(shopId, tempDir, fileFormat, ownerId);
     apiService.errorIf(!tempDir, apiService.errors.INVALID_BODY, 'NoProfileImage');
     const shop = await Shop.findById(shopId).where({ owner: ownerId });
     apiService.errorIf(!shop, apiService.errors.NOT_FOUND, 'NoSuchShop');
@@ -213,7 +227,7 @@ const uploadPicture = {
     await shop.save();
     // Do not wait for file removal, it can be done after sending the response
     fileService.removeFilesAsync(toRemoves);
-    return { path: shopId + '.' + fileFormat };
+    return shop;
   },
 };
 
