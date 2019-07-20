@@ -232,12 +232,29 @@ const searchItems = {
       { name: 'maxDistance', type: 'string' },
       { name: 'minRating', type: 'string' },
       { name: 'sortRating', type: 'string' },
+      { name: 'sortPrice', type: 'string' },
+      { name: 'minPrice', type: 'string' },
+      { name: 'maxPrice', type: 'string' },
     ],
     pred: body => body.text || body.category || body.tag,
     predDesc: 'At least one of text, category and tag must be provided',
   },
   async endpoint({
-    body: { text, skip, limit, tag, category, lat, long, maxDistance, minRating, sortRating },
+    body: {
+      text,
+      skip,
+      limit,
+      tag,
+      category,
+      lat,
+      long,
+      maxDistance,
+      minRating,
+      sortRating,
+      minPrice,
+      maxPrice,
+      sortPrice,
+    },
   }) {
     let query = Item.aggregate();
     if (lat && long && maxDistance) {
@@ -266,18 +283,28 @@ const searchItems = {
     if (tag) {
       query = query.match({ tag });
     }
+    if (minPrice) {
+      query = query.match({ price: { $gte: Number.parseFloat(minPrice) } });
+    }
+    if (maxPrice) {
+      query = query.match({ price: { $lte: Number.parseFloat(maxPrice) } });
+    }
+    if (sortPrice) {
+      query = query.sort({ price: Number.parseInt(sortPrice) });
+    }
     let items;
-    const sort = Number.parseInt(sortRating);
-    if (!minRating && !sort) {
+    const sortByRating = Number.parseInt(sortRating);
+    if (!minRating && !sortByRating) {
       items = await query.skip(Number.parseInt(skip || 0)).limit(Number.parseInt(limit));
       await aggregateItems(items);
     } else {
+      // In-application sorting logic
       items = await query;
       await aggregateItems(items);
       if (minRating) {
         items = items.filter(item => item.averageRating >= Number.parseFloat(minRating));
       }
-      if (sort) {
+      if (sortByRating) {
         items = items.sort((item1, item2) => {
           const at1 = item1.averageRating || 0;
           const at2 = item2.averageRating || 0;
