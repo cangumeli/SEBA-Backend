@@ -13,6 +13,19 @@ async function checkOwnership(shopId, userId) {
   apiService.errorIf(!shop, apiService.errors.UNAUTHORIZED, 'NotOwner');
 }
 
+async function aggregateItems(items) {
+  const aggs = await Comment.aggregate()
+    .match({ itemId: { $in: items.map(item => item._id) } })
+    .group(commentAggregation);
+  aggs.forEach(a => {
+    const item = items.find(item => item._id.toString() == a._id.toString());
+    if (item) {
+      item.numComments = a.count;
+      item.averageRating = a.average;
+    }
+  });
+}
+
 const addItem = {
   validation: {
     fields: [
@@ -72,16 +85,7 @@ const getItemList = {
   async endpoint({ body: { itemList } }) {
     let items = await Item.find({ _id: itemList }).populate(shopPopulation);
     apiService.errorIf(!items, apiService.errors.NOT_FOUND, 'NoSuchItem');
-    const aggs = await Comment.aggregate()
-      .match({ itemId: { $in: items.map(item => item._id) } })
-      .group(commentAggregation);
-    aggs.forEach(a => {
-      const item = items.find(item => item._id.toString() == a._id.toString());
-      if (item) {
-        item.numComments = a.count;
-        item.averageRating = a.average;
-      }
-    });
+    await aggregateItems(items);
     return items;
   },
   data: {
@@ -214,6 +218,78 @@ const removePicture = {
   data: { success: 'bool' },
 };
 
+const searchItems = {
+  validation: {
+    fields: [
+      { name: 'text', type: 'string' },
+      { name: 'category', type: 'string' },
+      { name: 'tag', type: 'string' },
+      { name: 'skip', type: 'string' },
+      { name: 'limit', type: 'string', required: true },
+      { name: 'lat', type: 'string' },
+      { name: 'long', type: 'string' },
+      { name: 'maxDistance', type: 'string' },
+      { name: 'minRating', type: 'string' },
+      { name: 'sortRating', type: 'string' },
+    ],
+    pred: body => body.text || body.category || body.tag,
+    predDesc: 'At least one of text, category and tag must be provided',
+  },
+  async endpoint({
+    body: { text, skip, limit, tag, category, lat, long, maxDistance, minRating, sortRating },
+  }) {
+    let query = Item.aggregate();
+    if (lat && long && maxDistance) {
+      const shops = await Shop.find({
+        location: {
+          $near: {
+            $geometry: {
+              type: 'Point',
+              coordinates: [Number.parseFloat(long), Number.parseFloat(lat)],
+            },
+            $maxDistance: Number.parseFloat(maxDistance),
+            $minDistance: 0,
+          },
+        },
+      }).select('_id');
+      const ids = shops.map(({ _id }) => _id);
+      query = query.match({ shopId: { $in: ids } });
+    }
+    if (text) {
+      const regex = new RegExp(text, 'i');
+      query = query.match({ name: regex });
+    }
+    if (category) {
+      query = query.match({ category });
+    }
+    if (tag) {
+      query = query.match({ tag });
+    }
+    let items;
+    const sort = Number.parseInt(sortRating);
+    if (!minRating && !sort) {
+      items = await query.skip(Number.parseInt(skip || 0)).limit(Number.parseInt(limit));
+      await aggregateItems(items);
+    } else {
+      items = await query;
+      await aggregateItems(items);
+      if (minRating) {
+        items = items.filter(item => item.averageRating >= Number.parseFloat(minRating));
+      }
+      if (sort) {
+        items = items.sort((item1, item2) => {
+          const at1 = item1.averageRating || 0;
+          const at2 = item2.averageRating || 0;
+          return at2 - at1;
+        });
+      }
+      items = items.slice(skip, skip + limit);
+    }
+    items = await Item.populate(items, { path: 'shopId', select: Item.shopIdPopulateFields() });
+    return items;
+  },
+};
+
 module.exports = {
   addInventory,
   getInventory,
@@ -224,4 +300,5 @@ module.exports = {
   getItemList,
   uploadPicture,
   removePicture,
+  searchItems,
 };

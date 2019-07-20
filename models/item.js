@@ -16,6 +16,7 @@ const itemSchema = new mongoose.Schema({
   numComments: Number,
 });
 
+itemSchema.index({ name: 'text' });
 itemSchema.statics.shopIdPopulateFields = function() {
   return { _id: 1, location: 1, locationDesc: 1, title: 1 };
 };
