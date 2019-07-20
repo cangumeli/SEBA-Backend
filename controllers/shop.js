@@ -85,11 +85,11 @@ const get = {
   async endpoint({ body, payload }) {
     const shop = await Shop.findById(body.id);
     apiService.errorIf(!shop, apiService.errors.NOT_FOUND, 'NoSuchShop');
-    const [{ average, count }] = await Comment.aggregate()
-      .match({ shopId: shop._id })
-      .group(commentAggregation);
-    shop.numComments = count;
-    shop.averageRating = average;
+    // const [{ average, count }] = await Comment.aggregate()
+    //   .match({ shopId: shop._id })
+    //   .group(commentAggregation);
+    // shop.numComments = count;
+    // shop.averageRating = average;
     return shop;
   },
 };
