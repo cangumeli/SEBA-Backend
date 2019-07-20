@@ -318,6 +318,8 @@ const searchItems = {
     items = await Item.populate(items, { path: 'shopId', select: Item.shopIdPopulateFields() });
     items.forEach(item => {
       item.id = item._id.toString();
+      item.shopId = apiService.refineMongooseObject(item.shopId);
+      console.log(item);
     });
     return items;
   },
