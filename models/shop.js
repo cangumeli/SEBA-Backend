@@ -1,25 +1,27 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const shopSchema = new mongoose.Schema({
   owner: { type: mongoose.SchemaTypes.ObjectId, required: true },
   title: { type: String, required: true },
   description: { type: String },
-  locationDesc: { type: String, default: "" },
+  locationDesc: { type: String, default: '' },
   location: {
     type: {
       type: String,
-      enum: ["Point"],
-      required: true
+      enum: ['Point'],
+      required: true,
     },
     coordinates: {
       type: [Number],
-      required: true
-    }
+      required: true,
+    },
   },
-  image: String
+  email: String,
+  phone: String,
+  image: String,
 });
 
-shopSchema.index({ location: "2dsphere" });
+shopSchema.index({ location: '2dsphere' });
 shopSchema.index({ owner: 1 });
 
-module.exports = mongoose.model("Shop", shopSchema);
+module.exports = mongoose.model('Shop', shopSchema);

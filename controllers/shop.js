@@ -22,6 +22,14 @@ const createShop = {
         arrayPred: coordinates => coordinates.length === 2,
         arrayPredDesc: '[lon, lat] format is expected',
       },
+      {
+        name: 'email',
+        type: 'string',
+      },
+      {
+        name: 'phone',
+        type: 'string',
+      },
     ],
   },
   endpoint({ body: { title, locationDesc, description, coordinates }, payload }) {
@@ -64,6 +72,12 @@ const updateShop = {
     }
     if (body.description || body.description === '') {
       shop.description = body.description;
+    }
+    if (body.email || body.email === '') {
+      shop.email = body.email;
+    }
+    if (body.description || body.description === '') {
+      shop.phone = body.phone;
     }
     return shop.save();
   },
@@ -173,6 +187,7 @@ const uploadPicture = {
     fields: [{ name: 'shopId', type: 'string', required: true }],
   },
   async endpoint({ body: { shopId }, payload: { id: ownerId }, tempDir, fileFormat }) {
+    console.log(shopId, tempDir, fileFormat, ownerId);
     apiService.errorIf(!tempDir, apiService.errors.INVALID_BODY, 'NoProfileImage');
     const shop = await Shop.findById(shopId).where({ owner: ownerId });
     apiService.errorIf(!shop, apiService.errors.NOT_FOUND, 'NoSuchShop');
@@ -183,7 +198,7 @@ const uploadPicture = {
     await shop.save();
     // Do not wait for file removal, it can be done after sending the response
     fileService.removeFilesAsync(toRemoves);
-    return { path: shopId + '.' + fileFormat };
+    return shop;
   },
 };
 
