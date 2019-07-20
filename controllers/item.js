@@ -329,7 +329,7 @@ const searchItems = {
           return at2 - at1;
         });
       }
-      items = items.slice(skip, skip + limit);
+      items = items.slice(skip || 0, (skip || 0) + limit);
     }
     items = await Item.populate(items, { path: 'shopId', select: Item.shopIdPopulateFields() });
     await aggregateShops(items.map(item => item.shopId));
