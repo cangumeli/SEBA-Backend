@@ -238,31 +238,12 @@ const removePicture = {
 };
 
 const searchItems = {
-  validation: {
-    fields: [
-      { name: 'text', type: 'string' },
-      { name: 'category', type: 'string' },
-      { name: 'tag', type: 'string' },
-      { name: 'skip', type: 'string' },
-      { name: 'limit', type: 'string', required: true },
-      { name: 'lat', type: 'string' },
-      { name: 'long', type: 'string' },
-      { name: 'maxDistance', type: 'string' },
-      { name: 'minRating', type: 'string' },
-      { name: 'sortRating', type: 'string' },
-      { name: 'sortPrice', type: 'string' },
-      { name: 'minPrice', type: 'string' },
-      { name: 'maxPrice', type: 'string' },
-    ],
-    pred: body => body.text || body.category || body.tag,
-    predDesc: 'At least one of text, category and tag must be provided',
-  },
   async endpoint({
     body: {
       text,
       skip,
       limit,
-      tag,
+      tagList,
       category,
       lat,
       long,
@@ -298,8 +279,8 @@ const searchItems = {
     if (category) {
       query = query.match({ category });
     }
-    if (tag) {
-      query = query.match({ tag });
+    if (tagList) {
+      query = query.match({ tag: { $in: tagList } });
     }
     if (minPrice) {
       query = query.match({ price: { $gte: Number.parseFloat(minPrice) } });
