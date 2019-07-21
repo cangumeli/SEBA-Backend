@@ -18,8 +18,8 @@ const shopSchema = new mongoose.Schema({
   },
   averageRating: Number,
   numComments: Number,
-  email: String,
-  phone: String,
+  email: { type: String },
+  phone: { type: String },
   image: String,
 });
 

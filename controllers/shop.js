@@ -34,12 +34,14 @@ const createShop = {
       },
     ],
   },
-  endpoint({ body: { title, locationDesc, description, coordinates }, payload }) {
+  endpoint({ body: { title, locationDesc, description, coordinates, email, phone }, payload }) {
     const shop = new Shop({
       owner: payload.id,
       title,
       locationDesc,
       description,
+      email,
+      phone,
       location: { type: 'Point', coordinates },
     });
     return shop.save();
@@ -82,12 +84,13 @@ const updateShop = {
       shop.phone = body.phone;
     }
     const saved = await shop.save();
-    const [{ average, count }] = await Comment.aggregate()
+    const comment = await Comment.aggregate()
       .match({ shopId: shop._id })
       .group(commentAggregation);
-    saved.numComments = count;
-    saved.averageRating = average;
-
+    if (comment !== undefined) {
+      saved.numComments = comment.count;
+      saved.averageRating = comment.average;
+    }
     return saved;
   },
   data: apiService.refinedMongooseSchema(Shop),
