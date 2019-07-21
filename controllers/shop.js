@@ -141,8 +141,12 @@ const deleteShop = {
       _id: body.id,
       owner: payload.id,
     });
+    const items = await Item.find({ shopId: shop._id });
+    const deleteItems = await Item.deleteMany({ shopId: shop._id });
+    const deleteComments = await Comment.deleteMany({ shopId: shop._id });
+    const ids = items.map(({ _id }) => _id);
+    const deleteComments2 = await Comment.deleteMany({ itemId: { $in: ids } });
     apiService.errorIf(!shop, apiService.errors.NOT_FOUND, 'NoSuchShop');
-
     return shop;
   },
 };
